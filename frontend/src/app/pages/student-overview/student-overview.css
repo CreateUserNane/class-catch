@@ -1,4 +1,4 @@
-.overview-page { display: flex; flex-direction: column; gap: 28px; }
+.overview-page { display: flex; flex-direction: column; gap: 24px; }
 .crumb { color: #4b5563; font-size: .82rem; font-weight: 600; }
 .overview-heading, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .overview-heading h1 { font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -.035em; }

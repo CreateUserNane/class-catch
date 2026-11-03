@@ -21,6 +21,9 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Teacher and student **Dashboards** are separate overview pages with role-specific counts and recent lessons.
 - **My Classes** is a separate page for the full class list and class actions.
 - Class cards include a stable subject marker using the existing indigo, emerald, amber, and charcoal colors. Empty class and lesson states explain the next step for students and teachers.
+- Student and teacher lesson libraries support searching lesson, class, and file names; filtering by class and file type; and sorting by date.
+- Class accents carry into class headers, lesson pages, lesson libraries, and the teacher review queue. Status badges use shared pending, approved, rejected, and neutral styles.
+- Shared controls have clearer hover, keyboard-focus, loading, and reduced-motion behavior.
 - Student and teacher dashboards use a soft paper-grain background that matches the login and registration pages.
 - Class detail pages link back to My Classes.
 - Teacher navigation includes a cross-class **Lessons** library and a **Review Queue** for approving student class join requests and approving or rejecting pending classroom photos.

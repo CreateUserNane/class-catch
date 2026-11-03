@@ -10,6 +10,7 @@ import { FileSizePipe } from '../../shared/pipes/file-size';
 import { MarkdownPipe } from '../../shared/pipes/markdown';
 import { ToastService } from '../../shared/toast/toast.service';
 import { UploadPhotoModal } from '../../shared/upload-photo-modal/upload-photo-modal';
+import { classAccentToken } from '../../shared/class-accent';
 
 @Component({
   selector: 'app-lesson-page',
@@ -27,6 +28,7 @@ export class LessonPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly user = this.authService.user;
+  protected readonly classAccent = classAccentToken;
 
   protected readonly lesson = signal<Lesson | null>(null);
   protected readonly loading = signal(true);

@@ -9,6 +9,7 @@ import { LessonFile } from '../../models/lesson-file';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
+import { classAccentToken } from '../../shared/class-accent';
 
 interface ClassWithLessons {
   schoolClass: SchoolClass;
@@ -30,10 +31,7 @@ export class StudentClasses implements OnInit {
 
   protected readonly user = this.authService.user;
 
-  protected classAccent(classId: number): string {
-    const accents = ['indigo', 'emerald', 'amber', 'slate'];
-    return accents[(Math.max(1, Math.trunc(classId)) - 1) % accents.length];
-  }
+  protected readonly classAccent = classAccentToken;
 
   protected readonly classes = signal<SchoolClass[]>([]);
   protected readonly classLessons = signal<ClassWithLessons[]>([]);

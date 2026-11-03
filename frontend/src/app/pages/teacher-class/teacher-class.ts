@@ -13,6 +13,7 @@ import { AppShell } from '../../shared/shell/shell';
 import { InitialsPipe } from '../../shared/pipes/initials';
 import { FileSizePipe } from '../../shared/pipes/file-size';
 import { ToastService } from '../../shared/toast/toast.service';
+import { classAccentToken } from '../../shared/class-accent';
 
 interface TeacherLessonView {
   lesson: Lesson;
@@ -37,6 +38,7 @@ export class TeacherClass implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly user = this.authService.user;
+  protected readonly classAccent = classAccentToken;
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal('');
 

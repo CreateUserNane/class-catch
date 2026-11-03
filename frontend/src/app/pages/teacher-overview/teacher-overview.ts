@@ -8,9 +8,11 @@ import { ClassService } from '../../services/class.service';
 import { Lesson } from '../../models/lesson';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
+import { classAccentToken } from '../../shared/class-accent';
 
 interface RecentLesson {
   lesson: Lesson;
+  classId: number;
   className: string;
 }
 
@@ -28,6 +30,7 @@ export class TeacherDashboard implements OnInit {
   private readonly router = inject(Router);
 
   protected readonly user = this.auth.user;
+  protected readonly classAccent = classAccentToken;
   protected readonly loading = signal(true);
   protected readonly error = signal('');
   protected readonly classes = signal<SchoolClass[]>([]);
@@ -45,7 +48,7 @@ export class TeacherDashboard implements OnInit {
         }
         forkJoin(classes.map((schoolClass) =>
           this.classService.getLessons(schoolClass.id).pipe(
-            map((lessons) => lessons.map((lesson) => ({ lesson, className: schoolClass.name }))),
+            map((lessons) => lessons.map((lesson) => ({ lesson, classId: schoolClass.id, className: schoolClass.name }))),
             catchError(() => of([] as RecentLesson[])),
           ),
         )).subscribe({

@@ -1,12 +1,40 @@
 .teacher-hub-page { display: flex; flex-direction: column; gap: 24px; }
 .hub-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e5e7eb; }
-.hub-heading h1 { font-size: clamp(1.45rem, 3vw, 1.8rem); letter-spacing: -.03em; }
+.hub-heading h1 { font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -.035em; }
 .hub-heading p:not(.hub-eyebrow) { margin-top: 6px; }
 .hub-heading .btn { display: inline-flex; align-items: center; gap: 7px; }
 .hub-eyebrow { margin-bottom: 5px; color: #737373; font-size: .67rem; font-weight: 700; letter-spacing: .12em; }
 .hub-section { display: flex; flex-direction: column; gap: 12px; }
 .hub-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .hub-section-heading h2 { font-size: 1.08rem; letter-spacing: -.02em; }
+.hub-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(130px, 1fr));
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.hub-filters .select { min-width: 0; }
+.filter-search { position: relative; min-width: 0; }
+.filter-search .input { height: 38px; padding-left: 36px; background: #fff; }
+.filter-search > .material-symbols-outlined {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  z-index: 1;
+  color: #9ca3af;
+  font-size: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.hub-class-name { display: inline-flex; align-items: center; gap: 8px; }
+.hub-class-name .class-accent-dot { width: 7px; height: 7px; flex-basis: 7px; box-shadow: none; }
+@media (max-width: 900px) { .hub-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) {
+  .hub-filters { grid-template-columns: 1fr; padding: 10px; }
+}
 .hub-list { display: flex; flex-direction: column; gap: 10px; }
 .hub-row, .hub-lesson, .photo-review-row { display: flex; align-items: center; gap: 14px; padding: 16px; }
 .hub-row-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: 11px; background: #f1f0ff; color: #5145cd; font-size: 21px; }

@@ -1,6 +1,6 @@
 <app-shell [role]="shellRole()">
   <div header class="shell-crumbs">
-    <a class="shell-crumb-link" [routerLink]="backToClassLink()">{{ className() }}</a>
+    <a class="shell-crumb-link class-name-with-accent" [routerLink]="backToClassLink()"><span class="class-accent-dot" [attr.data-accent]="classAccent(lesson()?.school_class?.id ?? 0)" aria-hidden="true"></span>{{ className() }}</a>
     <span class="shell-crumb-sep">/</span>
     <span class="shell-crumb-current">{{ lessonTitle() }}</span>
   </div>
@@ -32,7 +32,7 @@
             <span class="muted small">{{ teacher()?.name }}</span>
             <span class="dot">·</span>
             <span class="strong small">Class:</span>
-            <span class="muted small">{{ className() }}</span>
+            <span class="muted small class-name-with-accent"><span class="class-accent-dot" [attr.data-accent]="classAccent(lesson()?.school_class?.id ?? 0)" aria-hidden="true"></span>{{ className() }}</span>
             <span class="dot">·</span>
             <span class="strong small">Created:</span>
             <span class="muted small">{{ formatDate(createdAt()) }}</span>
@@ -137,11 +137,11 @@
                       <span class="tiny muted">by {{ file.uploader?.name }}</span>
 
                       @if (file.status === 'pending') {
-                        <span class="badge badge-amber"><span class="material-symbols-outlined">schedule</span>Pending teacher review</span>
+                        <span class="badge badge-pending"><span class="material-symbols-outlined">schedule</span>Pending teacher review</span>
                       } @else if (file.status === 'rejected') {
-                        <span class="badge badge-red"><span class="material-symbols-outlined">block</span>Not approved</span>
+                        <span class="badge badge-rejected"><span class="material-symbols-outlined">block</span>Not approved</span>
                       } @else {
-                        <span class="badge badge-green"><span class="material-symbols-outlined">check_circle</span>Approved for class</span>
+                        <span class="badge badge-approved"><span class="material-symbols-outlined">check_circle</span>Approved for class</span>
                       }
 
                       @if (canModeratePhotos() && file.status === 'pending') {
@@ -228,7 +228,7 @@
                   <span class="muted small">Approved classroom photos are included when the teacher generates a summary.</span>
                 </div>
               </div>
-              <span class="badge" [class]="summary() ? 'badge-green' : 'badge-gray'">{{ summary() ? 'Ready' : 'Pending' }}</span>
+              <span class="badge" [class]="summary() ? 'badge-approved' : 'badge-neutral'">{{ summary() ? 'Ready' : 'Pending' }}</span>
             </div>
 
             <div class="summary-content">

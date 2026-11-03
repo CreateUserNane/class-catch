@@ -12,6 +12,7 @@ import { User } from '../../models/user';
 import { AppShell } from '../../shared/shell/shell';
 import { InitialsPipe } from '../../shared/pipes/initials';
 import { ToastService } from '../../shared/toast/toast.service';
+import { classAccentToken } from '../../shared/class-accent';
 
 @Component({
   selector: 'app-student-class',
@@ -28,6 +29,7 @@ export class StudentClass implements OnInit {
   private readonly toast = inject(ToastService);
 
   protected readonly user = this.authService.user;
+  protected readonly classAccent = classAccentToken;
 
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal('');

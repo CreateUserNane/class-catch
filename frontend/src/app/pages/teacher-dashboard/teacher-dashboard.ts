@@ -6,6 +6,7 @@ import { ClassService } from '../../services/class.service';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
+import { classAccentToken } from '../../shared/class-accent';
 
 @Component({
   selector: 'app-teacher-classes',
@@ -22,10 +23,7 @@ export class TeacherClasses implements OnInit {
 
   protected readonly user = this.authService.user;
 
-  protected classAccent(classId: number): string {
-    const accents = ['indigo', 'emerald', 'amber', 'slate'];
-    return accents[(Math.max(1, Math.trunc(classId)) - 1) % accents.length];
-  }
+  protected readonly classAccent = classAccentToken;
   protected readonly classes = signal<SchoolClass[]>([]);
   protected readonly loading = signal(false);
   protected readonly creating = signal(false);

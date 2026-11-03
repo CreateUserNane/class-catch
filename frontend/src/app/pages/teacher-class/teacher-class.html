@@ -2,7 +2,7 @@
   <div header class="shell-crumbs">
     <a class="shell-crumb-link" routerLink="/dashboard/teacher/classes">My Classes</a>
     <span class="shell-crumb-sep">/</span>
-    <span class="shell-crumb-current">{{ className() }}</span>
+    <span class="shell-crumb-current class-name-with-accent"><span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass()?.id ?? 0)" aria-hidden="true"></span>{{ className() }}</span>
   </div>
 
   @if (loading()) {
@@ -26,7 +26,7 @@
       <section class="card card-pad class-hero">
         <div class="hero-head">
           <div class="stack-sm">
-            <h1 class="class-title">{{ className() }}</h1>
+            <div class="class-name-with-accent"><span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass()?.id ?? 0)" aria-hidden="true"></span><h1 class="class-title">{{ className() }}</h1></div>
             <div class="row wrap class-meta">
               <button type="button" class="code-chip mono" (click)="copyCode(classCode())" title="Click to copy class code">
                 <span>{{ classCode() }}</span>
@@ -163,7 +163,7 @@
                   <h3 class="roster-title">Requests to Join</h3>
                   <span class="tiny muted">Approve students before they can access class materials.</span>
                 </div>
-                <span class="badge" [class]="pendingRequestCount() ? 'badge-amber' : 'badge-gray'">
+                <span class="badge" [class]="pendingRequestCount() ? 'badge-pending' : 'badge-neutral'">
                   {{ pendingRequestCount() }} Pending
                 </span>
               </div>

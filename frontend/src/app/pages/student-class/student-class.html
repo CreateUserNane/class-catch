@@ -2,7 +2,7 @@
   <div header class="shell-crumbs">
     <a class="shell-crumb-link" routerLink="/dashboard/student/classes">My Classes</a>
     <span class="shell-crumb-sep">/</span>
-    <span class="shell-crumb-current">{{ className() }}</span>
+    <span class="shell-crumb-current class-name-with-accent"><span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass()?.id ?? 0)" aria-hidden="true"></span>{{ className() }}</span>
   </div>
 
   @if (loading()) {
@@ -27,6 +27,7 @@
         <div class="hero-head">
           <div class="stack-sm" style="gap: 4px">
             <div class="row wrap">
+              <span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass()?.id ?? 0)" aria-hidden="true"></span>
               <h1 class="class-title">{{ className() }}</h1>
               @if (isRepresentative()) {
                 <span class="badge badge-indigo">
@@ -112,7 +113,7 @@
                       <div class="row wrap">
                         <h3 class="lesson-title">{{ lesson.title }}</h3>
                         @if (lesson.summary) {
-                          <span class="badge badge-green">
+                          <span class="badge badge-approved">
                             <span class="material-symbols-outlined">auto_awesome</span>
                             Summary ready
                           </span>

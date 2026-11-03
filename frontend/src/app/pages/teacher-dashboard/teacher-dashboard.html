@@ -61,7 +61,7 @@
                 </div>
 
                 @if ((schoolClass.pending_requests_count ?? 0) > 0) {
-                  <span class="badge badge-amber pending-request-badge">
+                  <span class="badge badge-pending pending-request-badge">
                     <span class="material-symbols-outlined">how_to_reg</span>
                     {{ schoolClass.pending_requests_count }} Join Request{{ schoolClass.pending_requests_count !== 1 ? 's' : '' }}
                   </span>
