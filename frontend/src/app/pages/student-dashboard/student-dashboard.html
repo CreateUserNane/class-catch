@@ -39,7 +39,8 @@
         @if (classes().length === 0) {
           <div class="card empty">
             <span class="material-symbols-outlined">school</span>
-            <span>You haven't joined any classes yet.</span>
+            <strong>No classes yet</strong>
+            <span>Join with a class code from your teacher to find your lessons.</span>
             <button type="button" class="btn btn-dark btn-sm" (click)="openJoinModal()">
               <span class="material-symbols-outlined">add</span>
               Join your first class
@@ -51,7 +52,10 @@
               <div class="class-card-body">
                 <div class="row-between">
                   <div class="stack-sm" style="gap: 4px">
-                    <h3 class="class-name">{{ schoolClass.name }}</h3>
+                    <div class="class-name-with-accent">
+                      <span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass.id)" aria-hidden="true"></span>
+                      <h3 class="class-name">{{ schoolClass.name }}</h3>
+                    </div>
                     <span class="teacher-chip muted small">
                       <span class="material-symbols-outlined">person</span>
                       {{ schoolClass.teacher?.name }}

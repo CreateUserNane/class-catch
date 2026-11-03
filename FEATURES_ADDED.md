@@ -20,6 +20,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Teachers can assign a student representative to each class.
 - Teacher and student **Dashboards** are separate overview pages with role-specific counts and recent lessons.
 - **My Classes** is a separate page for the full class list and class actions.
+- Class cards include a stable subject marker using the existing indigo, emerald, amber, and charcoal colors. Empty class and lesson states explain the next step for students and teachers.
 - Class detail pages link back to My Classes.
 - Teacher navigation includes a cross-class **Lessons** library and a **Review Queue** for approving student class join requests and approving or rejecting pending classroom photos.
 - Student navigation includes **Lessons** and **Saved Lessons**. The lessons library lists lessons across approved classes; saved lessons can be bookmarked and are stored per student in that browser. Pending class joins remain visible on My Classes.

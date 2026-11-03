@@ -89,8 +89,10 @@
           <div class="lessons-pane stack">
             @if (lessons().length === 0) {
               <div class="card empty">
-                <span class="material-symbols-outlined">menu_book</span>
-                <span>No lessons yet.</span>
+                <span class="material-symbols-outlined">auto_stories</span>
+                <strong>Start with your first lesson</strong>
+                <span>Add a lesson, then attach slides or notes for your class.</span>
+                <button type="button" class="btn btn-dark btn-sm" (click)="openLessonModalCreate()"><span class="material-symbols-outlined">add</span>Create Lesson</button>
               </div>
             }
             @for (view of lessons(); track view.lesson.id; let i = $index) {

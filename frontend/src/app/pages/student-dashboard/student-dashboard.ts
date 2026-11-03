@@ -30,6 +30,11 @@ export class StudentClasses implements OnInit {
 
   protected readonly user = this.authService.user;
 
+  protected classAccent(classId: number): string {
+    const accents = ['indigo', 'emerald', 'amber', 'slate'];
+    return accents[(Math.max(1, Math.trunc(classId)) - 1) % accents.length];
+  }
+
   protected readonly classes = signal<SchoolClass[]>([]);
   protected readonly classLessons = signal<ClassWithLessons[]>([]);
   protected readonly totalClasses = computed(

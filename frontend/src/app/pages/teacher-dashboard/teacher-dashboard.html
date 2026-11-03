@@ -40,7 +40,8 @@
       } @else if (classes().length === 0) {
         <div class="card empty">
           <span class="material-symbols-outlined">school</span>
-          <span>You have not created any classes yet.</span>
+          <strong>No classes yet</strong>
+          <span>Create a class to share lessons and manage student requests.</span>
           <button type="button" class="btn btn-dark btn-sm" (click)="openCreateModal()">Create your first class</button>
         </div>
       } @else {
@@ -49,7 +50,10 @@
             <article class="class-card card card-hover paper-card">
               <div class="class-card-body">
                 <div class="row-between class-card-top">
-                  <h3 class="class-name">{{ schoolClass.name }}</h3>
+                  <div class="class-name-with-accent">
+                    <span class="class-accent-dot" [attr.data-accent]="classAccent(schoolClass.id)" aria-hidden="true"></span>
+                    <h3 class="class-name">{{ schoolClass.name }}</h3>
+                  </div>
                   <span class="enrolled">
                     <span class="material-symbols-outlined">group</span>
                     {{ schoolClass.students_count ?? 0 }} Students

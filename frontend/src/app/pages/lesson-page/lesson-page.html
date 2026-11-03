@@ -85,7 +85,8 @@
               @if (materials().length === 0) {
                 <div class="card empty">
                   <span class="material-symbols-outlined">description</span>
-                  <span>No lesson materials uploaded yet.</span>
+                  <strong>No lesson materials yet</strong>
+                  <span>{{ canGenerateSummary() ? 'Add a PowerPoint from the lesson header to get started.' : 'Your teacher can add slides and notes from the lesson page.' }}</span>
                 </div>
               } @else {
                 @for (file of materials(); track file.id) {
@@ -119,7 +120,8 @@
               @if (photos().length === 0) {
                 <div class="card empty">
                   <span class="material-symbols-outlined">photo_camera</span>
-                  <span>No classroom photos uploaded yet.</span>
+                  <strong>No classroom photos yet</strong>
+                  <span>{{ canUploadPhoto() ? 'Share a clear board photo so classmates can catch up.' : 'Approved board photos shared by the teacher or class representative will appear here.' }}</span>
                 </div>
               } @else {
                 @for (file of photos(); track file.id) {
@@ -244,7 +246,7 @@
                 <div class="empty summary-empty">
                   <span class="material-symbols-outlined">auto_awesome</span>
                   <span>No AI summary yet</span>
-                  <p>No lesson summary is available for this lesson yet.</p>
+                  <p>{{ canGenerateSummary() ? 'Generate a summary after adding lesson materials or approved classroom photos.' : 'A summary will appear here after the teacher generates one.' }}</p>
 
                   @if (canGenerateSummary()) {
                     <button type="button" class="btn btn-dark btn-sm" (click)="generateSummary()">

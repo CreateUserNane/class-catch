@@ -21,6 +21,11 @@ export class TeacherClasses implements OnInit {
   private readonly toast = inject(ToastService);
 
   protected readonly user = this.authService.user;
+
+  protected classAccent(classId: number): string {
+    const accents = ['indigo', 'emerald', 'amber', 'slate'];
+    return accents[(Math.max(1, Math.trunc(classId)) - 1) % accents.length];
+  }
   protected readonly classes = signal<SchoolClass[]>([]);
   protected readonly loading = signal(false);
   protected readonly creating = signal(false);

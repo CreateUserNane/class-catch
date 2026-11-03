@@ -292,6 +292,42 @@ select {
   z-index: 2;
 }
 
+.class-name-with-accent {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.class-accent-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px #eef2ff;
+}
+
+.class-accent-dot[data-accent='emerald'] {
+  background: #059669;
+  box-shadow: 0 0 0 3px #ecfdf5;
+}
+
+.class-accent-dot[data-accent='amber'] {
+  background: #b45309;
+  box-shadow: 0 0 0 3px #fffbeb;
+}
+
+.class-accent-dot[data-accent='slate'] {
+  background: #111827;
+  box-shadow: 0 0 0 3px #f3f4f6;
+}
+
+.empty strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
 .card-hover.paper-card:hover {
   transform: translateY(-1px);
 }
