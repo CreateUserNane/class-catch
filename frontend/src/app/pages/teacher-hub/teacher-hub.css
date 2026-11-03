@@ -24,6 +24,7 @@
 .hub-lesson-meta > span:first-child { display: inline-flex; align-items: center; gap: 4px; color: #6b7280; font-size: .72rem; }
 .hub-lesson-meta > span:first-child .material-symbols-outlined { font-size: 15px; }
 .hub-lesson-actions, .photo-review-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.review-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .hub-lesson-actions .btn, .photo-review-actions .btn { display: inline-flex; align-items: center; gap: 5px; }
 .hub-lesson-actions .btn .material-symbols-outlined, .photo-review-actions .btn .material-symbols-outlined { font-size: 17px; }
 .photo-review-thumb { width: 58px; height: 58px; flex: 0 0 auto; overflow: hidden; border: 1px solid #e5e7eb; border-radius: 9px; background: #f9fafb; }
@@ -33,6 +34,7 @@
   .hub-heading { align-items: flex-start; flex-direction: column; }
   .hub-row, .photo-review-row { align-items: flex-start; flex-wrap: wrap; }
   .photo-review-actions { width: 100%; justify-content: flex-end; margin-left: 72px; }
+  .review-actions { width: 100%; justify-content: flex-end; }
   .hub-lesson { align-items: flex-start; flex-wrap: wrap; }
   .hub-lesson .hub-row-copy { flex: 1 1 calc(100% - 54px); }
   .hub-lesson-actions { width: 100%; justify-content: flex-end; margin-left: 54px; }

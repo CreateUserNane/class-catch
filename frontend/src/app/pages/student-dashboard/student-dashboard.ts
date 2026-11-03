@@ -55,9 +55,9 @@ export class StudentClasses implements OnInit {
     this.router.navigate(['/student/classes', classId]);
   }
 
-  protected openJoinModal(): void {
+  protected openJoinModal(code = ''): void {
     this.errorMessage.set('');
-    this.joinCode.set('');
+    this.joinCode.set(code);
     this.joinModalOpen.set(true);
   }
 

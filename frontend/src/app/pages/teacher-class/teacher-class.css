@@ -56,6 +56,16 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.join-request-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reject-request {
+  color: #991b1b;
+}
+
 .join-request-empty {
   padding: 12px 0 2px;
   border-top: 1px solid #e5e7eb;
@@ -69,6 +79,10 @@
   .join-request-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .join-request-actions {
+    align-self: flex-end;
   }
 }
 

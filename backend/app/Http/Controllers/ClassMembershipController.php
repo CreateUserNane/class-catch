@@ -40,6 +40,15 @@ class ClassMembershipController extends Controller
         }
 
         if ($membership) {
+            if ($membership->status === 'rejected') {
+                $membership->update(['status' => 'pending']);
+
+                return response()->json([
+                    'message' => 'Your new request to join this class is pending teacher approval.',
+                    'status' => 'pending',
+                ], 201);
+            }
+
             return response()->json([
                 'message' => 'Your request to join this class is pending approval.',
                 'status' => $membership->status,
@@ -103,6 +112,20 @@ class ClassMembershipController extends Controller
             ->firstOrFail();
 
         $joinRequest->update(['status' => 'approved']);
+
+        return response()->json($joinRequest->load('student'));
+    }
+
+    public function reject(Request $request, SchoolClass $schoolClass, int $membership)
+    {
+        $this->ensureClassTeacher($request->user(), $schoolClass);
+
+        $joinRequest = ClassMembership::where('class_id', $schoolClass->id)
+            ->whereKey($membership)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $joinRequest->update(['status' => 'rejected']);
 
         return response()->json($joinRequest->load('student'));
     }

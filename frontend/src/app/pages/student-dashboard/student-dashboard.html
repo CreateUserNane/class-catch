@@ -62,10 +62,15 @@
                       <span>{{ schoolClass.code }}</span>
                       <span class="material-symbols-outlined">content_copy</span>
                     </button>
-                  } @else {
+                  } @else if (schoolClass.membership_status === 'pending') {
                     <span class="badge badge-amber">
                       <span class="material-symbols-outlined">schedule</span>
                       Pending approval
+                    </span>
+                  } @else {
+                    <span class="badge badge-red">
+                      <span class="material-symbols-outlined">block</span>
+                      Request declined
                     </span>
                   }
                 </div>
@@ -87,8 +92,10 @@
                       {{ summariesForClass(schoolClass.id) }} Summaries
                     </span>
                   </div>
-                } @else {
+                } @else if (schoolClass.membership_status === 'pending') {
                   <p class="class-desc muted">Your request is waiting for the teacher. Lessons will be available after approval.</p>
+                } @else {
+                  <p class="class-desc muted">The teacher declined your request. You can send a new request if you still need to join.</p>
                 }
               </div>
 
@@ -97,10 +104,15 @@
                   Open Class
                   <span class="material-symbols-outlined">arrow_forward</span>
                 </button>
-              } @else {
+              } @else if (schoolClass.membership_status === 'pending') {
                 <button type="button" class="btn btn-outline btn-block" disabled>
                   <span class="material-symbols-outlined">hourglass_top</span>
                   Waiting for approval
+                </button>
+              } @else {
+                <button type="button" class="btn btn-outline btn-block" (click)="openJoinModal(schoolClass.code)">
+                  <span class="material-symbols-outlined">refresh</span>
+                  Request to Join Again
                 </button>
               }
             </article>

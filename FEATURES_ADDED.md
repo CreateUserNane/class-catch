@@ -12,8 +12,9 @@ This document summarizes the ClassCatch features and fixes added during our work
 
 ## Classes and membership
 
-- Students request to join a class; requests remain **Pending** until the teacher approves them.
-- Students can see the pending state, and teachers can review and approve requests from the class page.
+- Students request to join a class; requests remain **Pending** until the teacher approves or rejects them.
+- Students can see pending or declined status on My Classes, and can send a new request after a decline.
+- Teachers can approve or reject join requests from the class page or Review Queue.
 - Teachers can assign a student representative to each class.
 - Teacher and student **Dashboards** are separate overview pages with role-specific counts and recent lessons.
 - **My Classes** is a separate page for the full class list and class actions.

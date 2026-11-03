@@ -186,18 +186,14 @@
                           <span class="tiny muted">{{ request.student.email }}</span>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        class="btn btn-dark btn-sm"
-                        [disabled]="approvingRequestId() !== null"
-                        (click)="approveJoinRequest(request)"
-                      >
-                        @if (approvingRequestId() === request.id) {
-                          <span class="spinner light"></span> Approving…
-                        } @else {
-                          <span class="material-symbols-outlined">check</span> Approve
-                        }
-                      </button>
+                      <div class="join-request-actions">
+                        <button type="button" class="btn btn-outline btn-sm reject-request" [disabled]="approvingRequestId() !== null" (click)="rejectJoinRequest(request)">
+                          @if (approvingRequestId() === request.id) { <span class="spinner"></span> } @else { <span class="material-symbols-outlined">close</span> } Reject
+                        </button>
+                        <button type="button" class="btn btn-dark btn-sm" [disabled]="approvingRequestId() !== null" (click)="approveJoinRequest(request)">
+                          @if (approvingRequestId() === request.id) { <span class="spinner light"></span> Approving… } @else { <span class="material-symbols-outlined">check</span> Approve }
+                        </button>
+                      </div>
                     </div>
                   }
                 </div>

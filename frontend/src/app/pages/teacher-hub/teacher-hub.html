@@ -39,9 +39,14 @@
               <article class="card hub-row">
                 <span class="hub-row-icon material-symbols-outlined">person_add</span>
                 <div class="hub-row-copy"><span>{{ entry.schoolClass.name }}</span><h3>{{ entry.request.student.name }}</h3><small>Requested {{ entry.request.created_at | date: 'MMM d, y' }}</small></div>
-                <button type="button" class="btn btn-dark btn-sm" [disabled]="busyRequestId() !== null" (click)="approveJoinRequest(entry)">
-                  @if (busyRequestId() === entry.request.id) { <span class="spinner light"></span> Approving… } @else { <span class="material-symbols-outlined">check</span> Approve }
-                </button>
+                <div class="review-actions">
+                  <button type="button" class="btn btn-outline btn-sm reject-btn" [disabled]="busyRequestId() !== null" (click)="rejectJoinRequest(entry)">
+                    @if (busyRequestId() === entry.request.id) { <span class="spinner"></span> } @else { <span class="material-symbols-outlined">close</span> } Reject
+                  </button>
+                  <button type="button" class="btn btn-dark btn-sm" [disabled]="busyRequestId() !== null" (click)="approveJoinRequest(entry)">
+                    @if (busyRequestId() === entry.request.id) { <span class="spinner light"></span> Approving… } @else { <span class="material-symbols-outlined">check</span> Approve }
+                  </button>
+                </div>
               </article>
             }
           </div>

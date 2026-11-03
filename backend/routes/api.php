@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/classes/joined', [ClassMembershipController::class, 'joined']);
     Route::get('/classes/{schoolClass}/join-requests', [ClassMembershipController::class, 'joinRequests']);
     Route::post('/classes/{schoolClass}/join-requests/{membership}/approve', [ClassMembershipController::class, 'approve']);
+    Route::post('/classes/{schoolClass}/join-requests/{membership}/reject', [ClassMembershipController::class, 'reject']);
     Route::get('/classes/{schoolClass}', [ClassController::class, 'show']);
 
     Route::get('/classes/{schoolClass}/students', [ClassMembershipController::class, 'members']);

@@ -89,6 +89,22 @@ export class TeacherHub implements OnInit {
     });
   }
 
+  protected rejectJoinRequest(entry: TeacherJoinRequestEntry): void {
+    if (this.busyRequestId() !== null) return;
+    this.busyRequestId.set(entry.request.id);
+    this.classService.rejectJoinRequest(entry.schoolClass.id, entry.request.id).subscribe({
+      next: () => {
+        this.joinRequests.update((items) => items.filter((item) => item.request.id !== entry.request.id));
+        this.busyRequestId.set(null);
+        this.toast.show(`${entry.request.student.name}'s request was rejected.`);
+      },
+      error: (error) => {
+        this.busyRequestId.set(null);
+        this.toast.show(error?.error?.message || 'Could not reject this join request.');
+      },
+    });
+  }
+
   protected moderatePhoto(entry: PendingPhotoEntry, status: 'approved' | 'rejected'): void {
     if (this.busyPhotoId() !== null) return;
     this.busyPhotoId.set(entry.file.id);

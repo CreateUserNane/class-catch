@@ -75,6 +75,14 @@ export class ClassService {
     );
   }
 
+  rejectJoinRequest(classId: number, membershipId: number): Observable<ClassJoinRequest> {
+    return this.http.post<ClassJoinRequest>(
+      `${this.apiUrl}/classes/${classId}/join-requests/${membershipId}/reject`,
+      {},
+      { headers: this.authHeaders() },
+    );
+  }
+
   getLessons(classId: number): Observable<Lesson[]> {
     return this.http.get<Lesson[]>(`${this.apiUrl}/classes/${classId}/lessons`, {
       headers: this.authHeaders(),

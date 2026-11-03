@@ -153,6 +153,25 @@ export class TeacherClass implements OnInit {
     });
   }
 
+  protected rejectJoinRequest(joinRequest: ClassJoinRequest): void {
+    const classId = this.schoolClass()?.id;
+    if (!classId || this.approvingRequestId() !== null) return;
+
+    this.approvingRequestId.set(joinRequest.id);
+    this.joinRequestError.set('');
+    this.classService.rejectJoinRequest(classId, joinRequest.id).subscribe({
+      next: () => {
+        this.approvingRequestId.set(null);
+        this.toast.show(`${joinRequest.student.name}'s request was rejected.`);
+        this.loadClass(classId);
+      },
+      error: (error) => {
+        this.approvingRequestId.set(null);
+        this.joinRequestError.set(error?.error?.message || 'Could not reject this request.');
+      },
+    });
+  }
+
   protected viewLesson(lessonId: number): void {
     this.router.navigate(['/lessons', lessonId]);
   }

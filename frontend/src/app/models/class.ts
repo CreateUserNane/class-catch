@@ -11,7 +11,7 @@ export interface ClassJoinRequest {
   id: number;
   class_id: number;
   student_id: number;
-  status: 'pending' | 'approved';
+  status: 'pending' | 'approved' | 'rejected';
   student: User;
   created_at: string;
 }
@@ -23,7 +23,7 @@ export interface SchoolClass {
   description: string | null;
   code: string;
   representative_id: number | null;
-  membership_status?: 'pending' | 'approved';
+  membership_status?: 'pending' | 'approved' | 'rejected';
   students_count?: number;
   pending_requests_count?: number;
   teacher?: User;
