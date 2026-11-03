@@ -313,6 +313,10 @@
     padding: 6px;
   }
 
+  .mobile-bottom-nav.teacher-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
   .mobile-nav-item {
     display: flex;
     align-items: center;
@@ -335,6 +339,10 @@
   .student-nav .mobile-nav-item {
     gap: 2px;
     font-size: .61rem;
+  }
+
+  .teacher-nav .mobile-nav-item {
+    font-size: .64rem;
   }
 
   .mobile-nav-item .material-symbols-outlined {

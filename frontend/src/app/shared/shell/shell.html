@@ -34,6 +34,13 @@
         <a class="nav-item" routerLink="/dashboard/student/saved" [class.active]="isSavedActive()" [attr.aria-current]="isSavedActive() ? 'page' : null">
           <span class="material-symbols-outlined">bookmark</span><span>Saved Lessons</span>
         </a>
+      } @else {
+        <a class="nav-item" routerLink="/dashboard/teacher/lessons" [class.active]="isLessonsActive()" [attr.aria-current]="isLessonsActive() ? 'page' : null">
+          <span class="material-symbols-outlined">menu_book</span><span>Lessons</span>
+        </a>
+        <a class="nav-item" routerLink="/dashboard/teacher/review" [class.active]="isReviewActive()" [attr.aria-current]="isReviewActive() ? 'page' : null">
+          <span class="material-symbols-outlined">fact_check</span><span>Review Queue</span>
+        </a>
       }
     </nav>
   </div>
@@ -72,7 +79,7 @@
   </main>
 </div>
 
-<nav class="mobile-bottom-nav" [class.student-nav]="role() === 'student'" aria-label="Main navigation">
+<nav class="mobile-bottom-nav" [class.student-nav]="role() === 'student'" [class.teacher-nav]="role() === 'teacher'" aria-label="Main navigation">
   <a class="mobile-nav-item" [routerLink]="dashboardLink()" [class.active]="isDashboardActive()" [attr.aria-current]="isDashboardActive() ? 'page' : null">
     <span class="material-symbols-outlined">grid_view</span><span>Dashboard</span>
   </a>
@@ -88,6 +95,13 @@
     </a>
     <a class="mobile-nav-item" routerLink="/dashboard/student/saved" [class.active]="isSavedActive()" [attr.aria-current]="isSavedActive() ? 'page' : null">
       <span class="material-symbols-outlined">bookmark</span><span>Saved</span>
+    </a>
+  } @else {
+    <a class="mobile-nav-item" routerLink="/dashboard/teacher/lessons" [class.active]="isLessonsActive()" [attr.aria-current]="isLessonsActive() ? 'page' : null">
+      <span class="material-symbols-outlined">menu_book</span><span>Lessons</span>
+    </a>
+    <a class="mobile-nav-item" routerLink="/dashboard/teacher/review" [class.active]="isReviewActive()" [attr.aria-current]="isReviewActive() ? 'page' : null">
+      <span class="material-symbols-outlined">fact_check</span><span>Review</span>
     </a>
   }
   <button type="button" class="mobile-nav-item logout" (click)="requestLogout()">

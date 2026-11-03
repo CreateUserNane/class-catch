@@ -1,0 +1,39 @@
+.teacher-hub-page { display: flex; flex-direction: column; gap: 24px; }
+.hub-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e5e7eb; }
+.hub-heading h1 { font-size: clamp(1.45rem, 3vw, 1.8rem); letter-spacing: -.03em; }
+.hub-heading p:not(.hub-eyebrow) { margin-top: 6px; }
+.hub-heading .btn { display: inline-flex; align-items: center; gap: 7px; }
+.hub-eyebrow { margin-bottom: 5px; color: #737373; font-size: .67rem; font-weight: 700; letter-spacing: .12em; }
+.hub-section { display: flex; flex-direction: column; gap: 12px; }
+.hub-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.hub-section-heading h2 { font-size: 1.08rem; letter-spacing: -.02em; }
+.hub-list { display: flex; flex-direction: column; gap: 10px; }
+.hub-row, .hub-lesson, .photo-review-row { display: flex; align-items: center; gap: 14px; padding: 16px; }
+.hub-row-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: 11px; background: #f1f0ff; color: #5145cd; font-size: 21px; }
+.hub-row-copy { flex: 1; min-width: 0; }
+.hub-row-copy h3, .hub-row-copy h2 { overflow: hidden; font-size: .98rem; letter-spacing: -.015em; text-overflow: ellipsis; white-space: nowrap; }
+.hub-row-copy > span, .hub-class-name { color: #6b7280; font-size: .76rem; }
+.hub-row-copy small { color: #6b7280; font-size: .72rem; }
+.hub-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 25px; color: #6b7280; text-align: center; }
+.hub-empty > .material-symbols-outlined { color: #5145cd; font-size: 30px; }
+.hub-empty strong { color: #111827; }
+.hub-empty-large { min-height: 240px; }
+.hub-lesson .hub-row-icon { align-self: flex-start; margin-top: 2px; }
+.hub-lesson .hub-row-copy h2 { margin: 3px 0 8px; }
+.hub-lesson-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.hub-lesson-meta > span:first-child { display: inline-flex; align-items: center; gap: 4px; color: #6b7280; font-size: .72rem; }
+.hub-lesson-meta > span:first-child .material-symbols-outlined { font-size: 15px; }
+.hub-lesson-actions, .photo-review-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.hub-lesson-actions .btn, .photo-review-actions .btn { display: inline-flex; align-items: center; gap: 5px; }
+.hub-lesson-actions .btn .material-symbols-outlined, .photo-review-actions .btn .material-symbols-outlined { font-size: 17px; }
+.photo-review-thumb { width: 58px; height: 58px; flex: 0 0 auto; overflow: hidden; border: 1px solid #e5e7eb; border-radius: 9px; background: #f9fafb; }
+.photo-review-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.reject-btn { color: #991b1b; }
+@media (max-width: 700px) {
+  .hub-heading { align-items: flex-start; flex-direction: column; }
+  .hub-row, .photo-review-row { align-items: flex-start; flex-wrap: wrap; }
+  .photo-review-actions { width: 100%; justify-content: flex-end; margin-left: 72px; }
+  .hub-lesson { align-items: flex-start; flex-wrap: wrap; }
+  .hub-lesson .hub-row-copy { flex: 1 1 calc(100% - 54px); }
+  .hub-lesson-actions { width: 100%; justify-content: flex-end; margin-left: 54px; }
+}

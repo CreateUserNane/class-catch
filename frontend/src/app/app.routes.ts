@@ -9,6 +9,7 @@ import { TeacherClass } from './pages/teacher-class/teacher-class';
 import { StudentClass } from './pages/student-class/student-class';
 import { LessonPage } from './pages/lesson-page/lesson-page';
 import { StudentHub } from './pages/student-hub/student-hub';
+import { TeacherHub } from './pages/teacher-hub/teacher-hub';
 import { AuthGuard } from './guards/auth.guard';
 import { AnyAuthenticatedGuard } from './guards/auth.guard';
 
@@ -19,6 +20,18 @@ export const routes: Routes = [
   {
     path: 'dashboard/teacher/classes',
     component: TeacherClasses,
+    canActivate: [AuthGuard('teacher')],
+  },
+  {
+    path: 'dashboard/teacher/lessons',
+    component: TeacherHub,
+    data: { teacherHubPage: 'lessons' },
+    canActivate: [AuthGuard('teacher')],
+  },
+  {
+    path: 'dashboard/teacher/review',
+    component: TeacherHub,
+    data: { teacherHubPage: 'review' },
     canActivate: [AuthGuard('teacher')],
   },
   {
