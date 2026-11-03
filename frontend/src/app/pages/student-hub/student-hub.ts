@@ -1,20 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { SavedLessonsService } from '../../services/saved-lessons.service';
 import { StudentLessonEntry, StudentWorkspaceService } from '../../services/student-workspace.service';
-import { LessonFile } from '../../models/lesson-file';
 import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
 
-type StudentHubPage = 'lessons' | 'requests' | 'saved';
-
-interface PendingPhotoEntry {
-  file: LessonFile;
-  className: string;
-  lessonTitle: string;
-}
+type StudentHubPage = 'lessons' | 'saved';
 
 @Component({
   selector: 'app-student-hub',
@@ -27,28 +19,23 @@ interface PendingPhotoEntry {
 export class StudentHub implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
   private readonly workspaceService = inject(StudentWorkspaceService);
   protected readonly savedService = inject(SavedLessonsService);
   private readonly toast = inject(ToastService);
 
-  protected readonly user = this.auth.user;
   protected readonly page = signal<StudentHubPage>('lessons');
   protected readonly loading = signal(true);
   protected readonly error = signal('');
-  protected readonly classes = signal<StudentLessonEntry['schoolClass'][]>([]);
   protected readonly lessons = signal<StudentLessonEntry[]>([]);
   protected readonly savedIds = this.savedService.savedIds;
 
   protected readonly title = computed(() => ({
     lessons: 'Lessons',
-    requests: 'Pending Requests',
     saved: 'Saved Lessons',
   })[this.page()]);
 
   protected readonly description = computed(() => ({
     lessons: 'Browse lessons and catch-up materials from your approved classes.',
-    requests: 'Track class join requests and classroom photos waiting for teacher review.',
     saved: 'Your bookmarked lessons, ready to revisit.',
   })[this.page()]);
 
@@ -57,24 +44,11 @@ export class StudentHub implements OnInit {
     return this.page() === 'saved' ? items.filter((entry) => this.savedIds().includes(entry.lesson.id)) : items;
   });
 
-  protected readonly pendingClasses = computed(() =>
-    this.classes().filter((schoolClass) => schoolClass.membership_status === 'pending'),
-  );
-
-  protected readonly pendingPhotos = computed<PendingPhotoEntry[]>(() => {
-    const userId = Number(this.user()?.id);
-    return this.lessons().flatMap(({ lesson, schoolClass }) =>
-      (lesson.files ?? [])
-        .filter((file) => file.type === 'photo' && file.status === 'pending' && Number(file.uploaded_by) === userId)
-        .map((file) => ({ file, className: schoolClass.name, lessonTitle: lesson.title })),
-    );
-  });
-
   ngOnInit(): void {
     this.savedService.refresh();
     this.route.data.subscribe((data) => {
       const page = data['studentHubPage'];
-      if (page === 'lessons' || page === 'requests' || page === 'saved') this.page.set(page);
+      if (page === 'lessons' || page === 'saved') this.page.set(page);
     });
     this.load();
   }
@@ -93,7 +67,6 @@ export class StudentHub implements OnInit {
     this.error.set('');
     this.workspaceService.load().subscribe({
       next: (workspace) => {
-        this.classes.set(workspace.classes);
         this.lessons.set(workspace.lessons);
         this.loading.set(false);
       },

@@ -55,10 +55,6 @@ export class AppShell {
     return url.startsWith(lessonsLink) || url.startsWith('/lessons/');
   }
 
-  protected isPendingActive(): boolean {
-    return this.normalizedPath().startsWith('/dashboard/student/requests');
-  }
-
   protected isSavedActive(): boolean {
     return this.normalizedPath().startsWith('/dashboard/student/saved');
   }

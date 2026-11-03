@@ -28,9 +28,6 @@
         <a class="nav-item" routerLink="/dashboard/student/lessons" [class.active]="isLessonsActive()" [attr.aria-current]="isLessonsActive() ? 'page' : null">
           <span class="material-symbols-outlined">menu_book</span><span>Lessons</span>
         </a>
-        <a class="nav-item" routerLink="/dashboard/student/requests" [class.active]="isPendingActive()" [attr.aria-current]="isPendingActive() ? 'page' : null">
-          <span class="material-symbols-outlined">pending_actions</span><span>Pending Requests</span>
-        </a>
         <a class="nav-item" routerLink="/dashboard/student/saved" [class.active]="isSavedActive()" [attr.aria-current]="isSavedActive() ? 'page' : null">
           <span class="material-symbols-outlined">bookmark</span><span>Saved Lessons</span>
         </a>
@@ -89,9 +86,6 @@
   @if (role() === 'student') {
     <a class="mobile-nav-item" routerLink="/dashboard/student/lessons" [class.active]="isLessonsActive()" [attr.aria-current]="isLessonsActive() ? 'page' : null">
       <span class="material-symbols-outlined">menu_book</span><span>Lessons</span>
-    </a>
-    <a class="mobile-nav-item" routerLink="/dashboard/student/requests" [class.active]="isPendingActive()" [attr.aria-current]="isPendingActive() ? 'page' : null">
-      <span class="material-symbols-outlined">pending_actions</span><span>Requests</span>
     </a>
     <a class="mobile-nav-item" routerLink="/dashboard/student/saved" [class.active]="isSavedActive()" [attr.aria-current]="isSavedActive() ? 'page' : null">
       <span class="material-symbols-outlined">bookmark</span><span>Saved</span>

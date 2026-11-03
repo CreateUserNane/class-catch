@@ -46,12 +46,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard('student')],
   },
   {
-    path: 'dashboard/student/requests',
-    component: StudentHub,
-    data: { studentHubPage: 'requests' },
-    canActivate: [AuthGuard('student')],
-  },
-  {
     path: 'dashboard/student/saved',
     component: StudentHub,
     data: { studentHubPage: 'saved' },
