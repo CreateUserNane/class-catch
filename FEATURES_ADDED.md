@@ -38,5 +38,4 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Desktop uses a sidebar; mobile uses a floating, fully rounded bottom navigation bar.
 - Dashboard and My Classes highlights follow the current page, including class detail and lesson pages.
 - Breadcrumbs and top bar styling are shared across pages, with matching navigation colors and icon sizing.
-- Indigo is used consistently for primary actions, selected tabs, and active navigation while preserving the warm neutral page background.
 - A custom layered ClassCatch book mark is used in the app sidebar, authentication pages, and browser tab icon.
