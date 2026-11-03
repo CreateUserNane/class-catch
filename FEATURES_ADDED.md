@@ -10,6 +10,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Logging out from desktop or mobile asks for confirmation first.
 - Login and registration pages have matching animated icon backgrounds, field icons, and a more polished chalk-inspired card design.
 - Login and registration cards use a layered, hand-torn paper edge treatment while retaining the existing color palette.
+- The authentication background combines light paper grain, low-contrast chalk formulas and doodles, and a subtle chalkboard-toned corner wash.
 
 ## Classes and membership
 

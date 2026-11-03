@@ -7,6 +7,62 @@
   overflow: hidden;
 }
 
+.auth-page::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  content: '';
+  pointer-events: none;
+  background-color: #f5f5f2;
+  background-image:
+    radial-gradient(ellipse at 0% 100%, rgba(43, 59, 54, 0.15) 0%, rgba(43, 59, 54, 0.06) 25%, transparent 48%),
+    radial-gradient(ellipse at 100% 0%, rgba(79, 70, 229, 0.035) 0%, transparent 38%),
+    radial-gradient(rgba(91, 82, 64, 0.1) 0.35px, transparent 0.6px),
+    radial-gradient(rgba(255, 255, 255, 0.7) 0.4px, transparent 0.7px);
+  background-size: auto, auto, 5px 5px, 7px 7px;
+  background-position: center, center, 0 0, 2px 3px;
+}
+
+.chalk-notes {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: #5f625d;
+}
+
+.chalk-note {
+  position: absolute;
+  display: block;
+  opacity: 0.25;
+  font-family: 'Comic Sans MS', 'Bradley Hand', cursive;
+  font-size: clamp(0.8rem, 1.5vw, 1.15rem);
+  font-style: italic;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.chalk-note-one { top: 14%; left: 7%; transform: rotate(-7deg); }
+.chalk-note-two { top: 19%; right: 6%; transform: rotate(5deg); }
+.chalk-note-three { bottom: 15%; left: 5%; transform: rotate(4deg); }
+.chalk-note-four { right: 7%; bottom: 17%; transform: rotate(-6deg); }
+
+.chalk-doodle {
+  position: absolute;
+  display: block;
+  opacity: 0.22;
+  color: #77776f;
+  font-family: 'Comic Sans MS', 'Bradley Hand', cursive;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.chalk-doodle-one { top: 36%; left: 8%; transform: rotate(-12deg); }
+.chalk-doodle-two { top: 43%; right: 9%; transform: rotate(9deg); }
+.chalk-doodle-three { right: 17%; bottom: 8%; transform: rotate(-8deg); }
+
 .particles {
   position: fixed;
   inset: 0;
