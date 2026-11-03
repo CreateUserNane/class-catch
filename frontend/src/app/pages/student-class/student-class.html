@@ -54,12 +54,6 @@
             </div>
           </div>
 
-          @if (isRepresentative()) {
-            <button type="button" class="btn btn-dark" (click)="openUploadModal()">
-              <span class="material-symbols-outlined">add_a_photo</span>
-              Upload Classroom Photo
-            </button>
-          }
         </div>
 
         <div class="stats-row">
@@ -207,11 +201,4 @@
     </div>
   }
 
-  <app-upload-photo-modal
-    [open]="uploadModalOpen()"
-    [lessons]="lessonOptions()"
-    [defaultLessonId]="defaultUploadLessonId()"
-    (dismissed)="closeUploadModal()"
-    (uploaded)="onPhotoUploaded()"
-  ></app-upload-photo-modal>
 </app-shell>

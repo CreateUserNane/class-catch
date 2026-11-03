@@ -12,12 +12,11 @@ import { User } from '../../models/user';
 import { AppShell } from '../../shared/shell/shell';
 import { InitialsPipe } from '../../shared/pipes/initials';
 import { ToastService } from '../../shared/toast/toast.service';
-import { UploadPhotoModal } from '../../shared/upload-photo-modal/upload-photo-modal';
 
 @Component({
   selector: 'app-student-class',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, AppShell, InitialsPipe, UploadPhotoModal],
+  imports: [RouterLink, DatePipe, AppShell, InitialsPipe],
   templateUrl: './student-class.html',
   styleUrl: './student-class.css',
 })
@@ -36,7 +35,6 @@ export class StudentClass implements OnInit {
   protected readonly lessons = signal<Lesson[]>([]);
   protected readonly classmates = signal<User[]>([]);
   protected readonly activeTab = signal<'lessons' | 'classmates'>('lessons');
-  protected readonly uploadModalOpen = signal(false);
 
   protected readonly className = computed(() => this.schoolClass()?.name ?? 'Class');
   protected readonly classCode = computed(() => this.schoolClass()?.code ?? '');
@@ -55,12 +53,6 @@ export class StudentClass implements OnInit {
 
     return schoolClass.representative_id === user.id || schoolClass.representative?.id === user.id;
   });
-
-  protected readonly lessonOptions = computed(() =>
-    this.lessons().map((lesson) => ({ id: lesson.id, title: lesson.title })),
-  );
-
-  protected readonly defaultUploadLessonId = computed(() => this.lessons()[0]?.id ?? null);
 
   protected readonly summaryCount = computed(
     () => this.lessons().filter((lesson) => !!lesson.summary).length,
@@ -110,19 +102,6 @@ export class StudentClass implements OnInit {
     return (lesson.files ?? []).filter((file) => file.type === 'photo').length;
   }
 
-  protected openUploadModal(): void {
-    this.uploadModalOpen.set(true);
-  }
-
-  protected closeUploadModal(): void {
-    this.uploadModalOpen.set(false);
-  }
-
-  protected onPhotoUploaded(): void {
-    this.uploadModalOpen.set(false);
-    this.refreshLessons();
-  }
-
   private loadClass(classId: number): void {
     this.loading.set(true);
     this.errorMessage.set('');
@@ -143,24 +122,6 @@ export class StudentClass implements OnInit {
       error: (error) => {
         this.loading.set(false);
         this.errorMessage.set(error?.error?.message || 'Could not load this class.');
-      },
-    });
-  }
-
-  private refreshLessons(): void {
-    const classId = this.schoolClass()?.id;
-
-    if (!classId) {
-      return;
-    }
-
-    this.classService.getLessons(classId).subscribe({
-      next: (lessons) => {
-        this.lessons.set(lessons);
-        this.loadLessonDetails(lessons);
-      },
-      error: () => {
-        // Keep the current lesson list when the refresh fails.
       },
     });
   }

@@ -24,7 +24,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 
 ## Classroom photos and AI
 
-- Only the teacher or the assigned student representative can upload photos for that class. Representatives upload from inside the class, where the photo can be associated with one of its lessons.
+- Only the teacher or the assigned student representative can upload photos for that class. Representatives start uploads from a lesson so each photo is associated with that lesson.
 - Photo selection supports browsing and drag and drop, with file checks and a preview before upload.
 - Representative uploads wait for teacher review. Students see the pending status; approved photos appear to the class.
 - Teachers can approve or reject uploads and delete photos if they were approved by mistake.
