@@ -107,7 +107,7 @@
 }
 
 .nav-item.active {
-  background: var(--shell-ink);
+  background: var(--shell-accent);
   color: #ffffff;
   font-weight: 600;
 }
@@ -371,7 +371,7 @@
   }
 
   .mobile-nav-item.active {
-    background: var(--shell-ink);
+    background: var(--shell-accent);
     color: #ffffff;
     font-weight: 600;
     border-radius: 9999px;
