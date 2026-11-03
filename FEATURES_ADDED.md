@@ -24,6 +24,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 
 ## Classroom photos and AI
 
+- Teachers can upload PowerPoint (.ppt/.pptx) files directly from a lesson page; the file appears in that lesson's materials.
 - Only the teacher or the assigned student representative can upload photos for that class. Representatives start uploads from a lesson so each photo is associated with that lesson.
 - Photo selection supports browsing and drag and drop, with file checks and a preview before upload.
 - Representative uploads wait for teacher review. Students see the pending status; approved photos appear to the class.

@@ -44,6 +44,8 @@ export class LessonPage implements OnInit {
   protected readonly photoDeleteErrorId = signal<number | null>(null);
 
   protected readonly uploadModalOpen = signal(false);
+  protected readonly uploadingMaterial = signal(false);
+  protected readonly materialUploadError = signal('');
 
   protected readonly shellRole = computed(() => this.user()?.role ?? 'student');
 
@@ -300,6 +302,40 @@ export class LessonPage implements OnInit {
 
   protected openUploadModal(): void {
     this.uploadModalOpen.set(true);
+  }
+
+  protected uploadPowerPoint(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!/\.pptx?$/i.test(file.name)) {
+      this.materialUploadError.set('Choose a PowerPoint file (.ppt or .pptx).');
+      return;
+    }
+
+    const lessonId = this.lessonId();
+    if (!lessonId) {
+      return;
+    }
+
+    this.uploadingMaterial.set(true);
+    this.materialUploadError.set('');
+    this.classService.uploadMaterial(lessonId, file).subscribe({
+      next: () => {
+        this.uploadingMaterial.set(false);
+        this.toast.show('PowerPoint uploaded to lesson materials.');
+        this.loadLesson(lessonId);
+      },
+      error: (error) => {
+        this.uploadingMaterial.set(false);
+        this.materialUploadError.set(error?.error?.message || 'Could not upload the PowerPoint.');
+      },
+    });
   }
 
   protected closeUploadModal(): void {
