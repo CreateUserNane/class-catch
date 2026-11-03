@@ -108,6 +108,14 @@ select {
   gap: 22px;
 }
 
+.paper-grain {
+  background-image:
+    radial-gradient(rgba(91, 82, 64, 0.07) 0.35px, transparent 0.6px),
+    radial-gradient(rgba(255, 255, 255, 0.55) 0.4px, transparent 0.7px);
+  background-size: 5px 5px, 7px 7px;
+  background-position: 0 0, 2px 3px;
+}
+
 .page-narrow {
   max-width: 1180px;
 }
