@@ -28,6 +28,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Class detail pages link back to My Classes.
 - Teacher navigation includes a cross-class **Lessons** library and a **Review Queue** for approving student class join requests and approving or rejecting pending classroom photos.
 - Student navigation includes **Lessons** and **Saved Lessons**. The lessons library lists lessons across approved classes; saved lessons can be bookmarked and are stored per student in that browser. Pending class joins remain visible on My Classes.
+- Teachers can switch classes from the shared top bar. Students see their recently viewed lessons on the dashboard; visit history is stored locally per account.
 
 ## Classroom photos and AI
 

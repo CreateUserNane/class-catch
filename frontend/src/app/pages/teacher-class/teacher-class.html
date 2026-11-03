@@ -1,4 +1,4 @@
-<app-shell role="teacher">
+<app-shell role="teacher" [activeClassId]="schoolClass()?.id ?? null">
   <div header class="shell-crumbs">
     <a class="shell-crumb-link" routerLink="/dashboard/teacher/classes">My Classes</a>
     <span class="shell-crumb-sep">/</span>

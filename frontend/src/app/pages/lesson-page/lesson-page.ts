@@ -11,6 +11,7 @@ import { MarkdownPipe } from '../../shared/pipes/markdown';
 import { ToastService } from '../../shared/toast/toast.service';
 import { UploadPhotoModal } from '../../shared/upload-photo-modal/upload-photo-modal';
 import { classAccentToken } from '../../shared/class-accent';
+import { RecentLessonsService } from '../../services/recent-lessons.service';
 
 @Component({
   selector: 'app-lesson-page',
@@ -25,6 +26,7 @@ export class LessonPage implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastService);
+  private readonly recentLessons = inject(RecentLessonsService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly user = this.authService.user;
@@ -361,6 +363,10 @@ export class LessonPage implements OnInit {
     this.classService.getLesson(lessonId).subscribe({
       next: (lesson) => {
         this.lesson.set(lesson);
+        const user = this.user();
+        if (user?.role === 'student') {
+          this.recentLessons.record(lesson.id, user.id);
+        }
         this.loading.set(false);
 
         this.loadExplanations(lesson);

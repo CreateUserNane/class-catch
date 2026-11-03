@@ -9,11 +9,16 @@ import { Lesson } from '../../models/lesson';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { classAccentToken } from '../../shared/class-accent';
+import { RecentLessonsService } from '../../services/recent-lessons.service';
 
 interface RecentLesson {
   lesson: Lesson;
   classId: number;
   className: string;
+}
+
+interface ViewedLesson extends RecentLesson {
+  viewedAt: number;
 }
 
 @Component({
@@ -27,6 +32,7 @@ interface RecentLesson {
 export class StudentDashboard implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly classService = inject(ClassService);
+  private readonly recentLessonsService = inject(RecentLessonsService);
   private readonly router = inject(Router);
 
   protected readonly user = this.auth.user;
@@ -35,11 +41,21 @@ export class StudentDashboard implements OnInit {
   protected readonly error = signal('');
   protected readonly classes = signal<SchoolClass[]>([]);
   protected readonly recentLessons = signal<RecentLesson[]>([]);
+  protected readonly allLessons = signal<RecentLesson[]>([]);
+  protected readonly recentlyViewed = computed<ViewedLesson[]>(() =>
+    this.recentLessonsService.visits().flatMap((visit) => {
+      const item = this.allLessons().find((entry) => entry.lesson.id === visit.lessonId);
+      return item ? [{ ...item, viewedAt: visit.viewedAt }] : [];
+    }).slice(0, 5),
+  );
   protected readonly totalLessonCount = signal(0);
   protected readonly approvedCount = computed(() => this.classes().filter((item) => item.membership_status === 'approved').length);
   protected readonly pendingCount = computed(() => this.classes().filter((item) => item.membership_status === 'pending').length);
 
   ngOnInit(): void {
+    const userId = this.user()?.id;
+    if (userId) this.recentLessonsService.loadForUser(userId);
+
     this.classService.getJoinedClasses().subscribe({
       next: (classes) => {
         this.classes.set(classes);
@@ -57,7 +73,9 @@ export class StudentDashboard implements OnInit {
           next: (groups) => {
             const allLessons = groups.flat();
             this.totalLessonCount.set(allLessons.length);
-            this.recentLessons.set(allLessons.sort((a, b) => b.lesson.created_at.localeCompare(a.lesson.created_at)).slice(0, 6));
+            const sortedLessons = allLessons.sort((a, b) => b.lesson.created_at.localeCompare(a.lesson.created_at));
+            this.allLessons.set(sortedLessons);
+            this.recentLessons.set(sortedLessons.slice(0, 6));
             this.loading.set(false);
           },
           error: () => this.loading.set(false),

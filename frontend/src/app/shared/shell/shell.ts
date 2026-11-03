@@ -1,7 +1,9 @@
-import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InitialsPipe } from '../pipes/initials';
+import { ClassService } from '../../services/class.service';
+import { SchoolClass } from '../../models/class';
 
 @Component({
   selector: 'app-shell',
@@ -10,16 +12,40 @@ import { InitialsPipe } from '../pipes/initials';
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })
-export class AppShell {
+export class AppShell implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly classService = inject(ClassService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly role = input.required<'teacher' | 'student'>();
+  readonly activeClassId = input<number | null>(null);
 
   protected readonly user = this.authService.user;
   protected readonly currentUrl = signal(this.router.url);
   protected readonly logoutConfirmOpen = signal(false);
+  protected readonly teacherClasses = signal<SchoolClass[]>([]);
+  protected readonly teacherClassesLoading = signal(false);
+  protected readonly classSwitcherValue = computed(() => {
+    const id = this.activeClassId();
+    return id && this.teacherClasses().some((schoolClass) => schoolClass.id === id) ? String(id) : '';
+  });
+
+  ngOnInit(): void {
+    if (this.role() !== 'teacher') return;
+
+    this.teacherClassesLoading.set(true);
+    this.classService.getClasses().subscribe({
+      next: (classes) => {
+        this.teacherClasses.set(classes);
+        this.teacherClassesLoading.set(false);
+      },
+      error: () => {
+        this.teacherClasses.set([]);
+        this.teacherClassesLoading.set(false);
+      },
+    });
+  }
 
   constructor() {
     const subscription = this.router.events.subscribe((event) => {
@@ -69,6 +95,11 @@ export class AppShell {
 
   protected openClasses(): void {
     void this.router.navigateByUrl(this.classesLink());
+  }
+
+  protected switchClass(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    if (id > 0) void this.router.navigate(['/classes', id]);
   }
 
   protected requestLogout(): void {

@@ -1,4 +1,4 @@
-<app-shell [role]="shellRole()">
+<app-shell [role]="shellRole()" [activeClassId]="lesson()?.school_class?.id ?? null">
   <div header class="shell-crumbs">
     <a class="shell-crumb-link class-name-with-accent" [routerLink]="backToClassLink()"><span class="class-accent-dot" [attr.data-accent]="classAccent(lesson()?.school_class?.id ?? 0)" aria-hidden="true"></span>{{ className() }}</a>
     <span class="shell-crumb-sep">/</span>

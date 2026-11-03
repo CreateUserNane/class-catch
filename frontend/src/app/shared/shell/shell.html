@@ -57,6 +57,18 @@
     </div>
 
     <div class="topbar-right">
+      @if (role() === 'teacher') {
+        <label class="class-switcher">
+          <span class="material-symbols-outlined switcher-icon" aria-hidden="true">swap_horiz</span>
+          <select aria-label="Switch class" [value]="classSwitcherValue()" [disabled]="teacherClassesLoading() || teacherClasses().length === 0" (change)="switchClass($event)">
+            <option value="">{{ teacherClassesLoading() ? 'Loading classes…' : teacherClasses().length === 0 ? 'No classes yet' : 'Switch class' }}</option>
+            @for (schoolClass of teacherClasses(); track schoolClass.id) {
+              <option [value]="schoolClass.id">{{ schoolClass.name }}</option>
+            }
+          </select>
+          <span class="material-symbols-outlined switcher-arrow" aria-hidden="true">expand_more</span>
+        </label>
+      }
       <span class="workspace-pill">
         <span class="dot"></span>
         {{ role() === 'teacher' ? 'Teacher Workspace' : 'Student Workspace' }}

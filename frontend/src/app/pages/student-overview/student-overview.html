@@ -14,6 +14,25 @@
       <article class="overview-stat paper-card"><span class="stat-icon lessons"><span class="material-symbols-outlined">menu_book</span></span><div><strong>{{ totalLessonCount() }}</strong><span>Available lessons</span></div></article>
     </section>
 
+    @if (recentlyViewed().length > 0) {
+      <section class="overview-section recently-viewed-section" aria-label="Recently viewed lessons">
+        <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Recently viewed</h2></div><a routerLink="/dashboard/student/lessons">All lessons <span class="material-symbols-outlined">arrow_forward</span></a></div>
+        <div class="lesson-list">
+          @for (item of recentlyViewed(); track item.lesson.id) {
+            <article class="lesson-row">
+              <span class="lesson-icon material-symbols-outlined">history</span>
+              <div class="lesson-copy">
+                <span class="class-name-with-accent"><span class="class-accent-dot" [attr.data-accent]="classAccent(item.classId)" aria-hidden="true"></span>{{ item.className }}</span>
+                <h3>{{ item.lesson.title }}</h3>
+                <small>Viewed {{ item.viewedAt | date: 'MMM d, h:mm a' }}</small>
+              </div>
+              <button class="btn btn-outline btn-sm" type="button" (click)="openLesson(item.lesson.id)">Continue <span class="material-symbols-outlined">arrow_forward</span></button>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
     <section class="overview-section">
       <div class="section-heading"><div><p class="eyebrow">LATEST FROM YOUR CLASSES</p><h2>Recent lessons</h2></div><a routerLink="/dashboard/student/classes">Browse classes <span class="material-symbols-outlined">arrow_forward</span></a></div>
       @if (loading()) { <div class="overview-empty"><span class="spinner"></span><span>Loading your lessons…</span></div> }
