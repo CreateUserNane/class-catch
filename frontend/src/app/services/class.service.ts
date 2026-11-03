@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SchoolClass } from '../models/class';
+import { ClassJoinRequest, SchoolClass } from '../models/class';
 import { Lesson } from '../models/lesson';
 import { LessonFile } from '../models/lesson-file';
 import { AiSummary } from '../models/ai-summary';
@@ -53,10 +53,24 @@ export class ClassService {
     });
   }
 
-  joinClass(code: string): Observable<SchoolClass> {
-    return this.http.post<SchoolClass>(
+  joinClass(code: string): Observable<{ message: string; status: 'pending' }> {
+    return this.http.post<{ message: string; status: 'pending' }>(
       `${this.apiUrl}/classes/join`,
       { code },
+      { headers: this.authHeaders() },
+    );
+  }
+
+  getJoinRequests(classId: number): Observable<ClassJoinRequest[]> {
+    return this.http.get<ClassJoinRequest[]>(`${this.apiUrl}/classes/${classId}/join-requests`, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  approveJoinRequest(classId: number, membershipId: number): Observable<ClassJoinRequest> {
+    return this.http.post<ClassJoinRequest>(
+      `${this.apiUrl}/classes/${classId}/join-requests/${membershipId}/approve`,
+      {},
       { headers: this.authHeaders() },
     );
   }
@@ -119,6 +133,14 @@ export class ClassService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/lesson-files/${lessonFileId}`, {
       headers: this.authHeaders(),
     });
+  }
+
+  moderatePhoto(lessonFileId: number, status: 'approved' | 'rejected'): Observable<LessonFile> {
+    return this.http.patch<LessonFile>(
+      `${this.apiUrl}/lesson-files/${lessonFileId}/moderation`,
+      { status },
+      { headers: this.authHeaders() },
+    );
   }
 
   getSummary(lessonId: number): Observable<AiSummary> {

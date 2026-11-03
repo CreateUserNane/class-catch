@@ -5,6 +5,7 @@ export interface LessonFile {
   lesson_id: number;
   uploaded_by: number;
   type: 'material' | 'photo';
+  status?: 'pending' | 'approved' | 'rejected';
   original_name: string;
   path?: string;
   url: string;

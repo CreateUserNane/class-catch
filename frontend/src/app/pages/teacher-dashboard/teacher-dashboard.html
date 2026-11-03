@@ -1,5 +1,9 @@
 <app-shell role="teacher">
-  <div header class="crumb">Dashboard</div>
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" routerLink="/dashboard/teacher">Dashboard</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">My Classes</span>
+  </div>
 
   <div class="page">
     <div class="dashboard-head">
@@ -20,7 +24,7 @@
       </div>
     }
 
-    <section class="classes-section">
+    <section id="classes" class="classes-section">
       <div class="section-head">
         <div class="row">
           <h2 class="section-title">Your Classes</h2>
@@ -51,6 +55,13 @@
                     {{ schoolClass.students_count ?? 0 }} Students
                   </span>
                 </div>
+
+                @if ((schoolClass.pending_requests_count ?? 0) > 0) {
+                  <span class="badge badge-amber pending-request-badge">
+                    <span class="material-symbols-outlined">how_to_reg</span>
+                    {{ schoolClass.pending_requests_count }} Join Request{{ schoolClass.pending_requests_count !== 1 ? 's' : '' }}
+                  </span>
+                }
 
                 @if (schoolClass.description) {
                   <p class="class-desc">{{ schoolClass.description }}</p>

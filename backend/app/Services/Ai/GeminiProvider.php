@@ -8,20 +8,32 @@ use Illuminate\Support\Facades\Http;
 
 class GeminiProvider implements AiProvider
 {
-    public function summarize(string $text): string
+    public function summarize(string $text, array $imagePaths = []): string
     {
+        $parts = [['text' => $text]];
+        foreach ($imagePaths as $imagePath) {
+            if (! is_file($imagePath)) {
+                continue;
+            }
+
+            $parts[] = [
+                'inlineData' => [
+                    'mimeType' => $this->imageMimeType($imagePath),
+                    'data' => $this->imageBase64($imagePath),
+                ],
+            ];
+        }
+
         return $this->generate([
             'systemInstruction' => [
                 'parts' => [
-                    ['text' => 'You are an educational assistant. Produce a clear, organized lesson summary with key concepts, definitions, and takeaways.'],
+                    ['text' => 'You are an educational assistant. Write a concise but complete study guide based only on the supplied lesson text and classroom photos. Include legible board notes, diagrams, and equations when relevant; do not guess at unclear image content. Preserve important facts, definitions, and relationships; avoid repetition and filler. Use Markdown with a brief overview, clear section headings, and focused bullet points for key ideas and takeaways. Be precise, and do not omit essential details just to make the answer shorter.'],
                 ],
             ],
             'contents' => [
                 [
                     'role' => 'user',
-                    'parts' => [
-                        ['text' => $text],
-                    ],
+                    'parts' => $parts,
                 ],
             ],
         ]);

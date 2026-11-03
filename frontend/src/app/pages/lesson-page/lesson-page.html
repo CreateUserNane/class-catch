@@ -1,8 +1,8 @@
 <app-shell [role]="shellRole()">
-  <div header class="crumb-row">
-    <a class="crumb-link" [routerLink]="backToClassLink()">{{ className() }}</a>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-current">{{ lessonTitle() }}</span>
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" [routerLink]="backToClassLink()">{{ className() }}</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">{{ lessonTitle() }}</span>
   </div>
 
   @if (loading()) {
@@ -124,8 +124,44 @@
                       </div>
                       <span class="tiny muted">by {{ file.uploader?.name }}</span>
 
+                      @if (file.status === 'pending') {
+                        <span class="badge badge-amber"><span class="material-symbols-outlined">schedule</span>Pending teacher review</span>
+                      } @else if (file.status === 'rejected') {
+                        <span class="badge badge-red"><span class="material-symbols-outlined">block</span>Not approved</span>
+                      } @else {
+                        <span class="badge badge-green"><span class="material-symbols-outlined">check_circle</span>Approved for class</span>
+                      }
+
+                      @if (canModeratePhotos() && file.status === 'pending') {
+                        <div class="photo-review-actions row">
+                          <button type="button" class="btn btn-dark btn-sm" [disabled]="moderatingPhotoId() !== null" (click)="moderatePhoto(file, 'approved')">
+                            @if (moderatingPhotoId() === file.id) { <span class="spinner light"></span> Reviewing… } @else { <span class="material-symbols-outlined">check</span> Approve &amp; Publish }
+                          </button>
+                          <button type="button" class="btn btn-outline btn-sm" [disabled]="moderatingPhotoId() !== null" (click)="moderatePhoto(file, 'rejected')">
+                            <span class="material-symbols-outlined">close</span> Reject
+                          </button>
+                        </div>
+                      }
+
+                      @if (canModeratePhotos()) {
+                        <div class="photo-review-actions row">
+                          <button type="button" class="btn btn-ghost btn-sm" [disabled]="deletingPhotoId() !== null" (click)="deletePhoto(file)">
+                            @if (deletingPhotoId() === file.id) { <span class="spinner"></span> Removing… } @else { <span class="material-symbols-outlined">delete</span> Delete Photo }
+                          </button>
+                        </div>
+                      }
+
+                      @if (photoModerationErrorId() === file.id) {
+                        <div class="alert alert-error"><span>Could not update this photo. Try again.</span></div>
+                      }
+                      @if (photoDeleteErrorId() === file.id) {
+                        <div class="alert alert-error"><span>Could not delete this photo. Try again.</span></div>
+                      }
+
                       <div class="photo-status">
-                        @if (explanationFor(file); as explanation) {
+                        @if (file.status !== 'approved') {
+                          <span class="tiny muted">AI explanations are available after approval.</span>
+                        } @else if (explanationFor(file); as explanation) {
                           <span class="badge badge-green">
                             <span class="material-symbols-outlined">auto_awesome</span>
                             AI explanation ready
@@ -138,6 +174,7 @@
                         }
                       </div>
 
+                      @if (file.status === 'approved') {
                       <div class="photo-actions row">
                         @if (explanationFor(file)) {
                           <button type="button" class="btn btn-outline btn-sm btn-block" (click)="generateExplanation(file)">
@@ -151,6 +188,7 @@
                           <span class="badge badge-gray">Explanation not available</span>
                         }
                       </div>
+                      }
 
                       @if (explanationErrorId() === file.id) {
                         <div class="alert alert-error">
@@ -169,22 +207,28 @@
         <aside class="stack-lg">
           <!-- AI Summary -->
           <section class="card card-pad ai-summary-section">
-            <div class="row-between stack-sm" style="gap: 10px">
-              <div class="row wrap">
-                <span class="section-title"><span class="material-symbols-outlined">auto_awesome</span> AI Lesson Summary</span>
-                <span class="badge" [class]="summary() ? 'badge-green' : 'badge-gray'">{{ summary() ? 'Ready' : 'Pending' }}</span>
+            <div class="summary-header">
+              <div class="summary-heading-group">
+                <span class="summary-icon"><span class="material-symbols-outlined">auto_awesome</span></span>
+                <div class="summary-heading-copy">
+                  <span class="summary-kicker">Study guide</span>
+                  <span class="summary-title">AI Lesson Summary</span>
+                  <span class="muted small">Approved classroom photos are included when the teacher generates a summary.</span>
+                </div>
               </div>
-              <div class="muted small">{{ summary() ? 'Generated for this lesson' : 'Catch-up notes generated from the lesson materials.' }}</div>
+              <span class="badge" [class]="summary() ? 'badge-green' : 'badge-gray'">{{ summary() ? 'Ready' : 'Pending' }}</span>
             </div>
 
             <div class="summary-content">
               @if (generatingSummary()) {
                 <div class="card empty"> <span class="spinner"></span> <span>Generating AI summary…</span> </div>
               } @else if (summary(); as summary) {
-                <div class="prose" [innerHTML]="summary.content | markdown"></div>
-                <div class="row-between">
+                <div class="prose summary-prose" [innerHTML]="summary.content | markdown"></div>
+                <div class="summary-footer">
                   <span class="tiny muted">Generated {{ formatDate(summary.created_at) }}</span>
-                  <button type="button" class="btn btn-ghost btn-xs" (click)="generateSummary()" [disabled]="generatingSummary()">Regenerate</button>
+                  @if (canGenerateSummary()) {
+                    <button type="button" class="btn btn-ghost btn-xs" (click)="generateSummary()" [disabled]="generatingSummary()">Regenerate</button>
+                  }
                 </div>
               } @else {
                 <div class="empty summary-empty">

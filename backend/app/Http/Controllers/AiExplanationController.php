@@ -19,6 +19,10 @@ class AiExplanationController extends Controller
         $user = $request->user();
         $schoolClass = $lessonFile->lesson->schoolClass;
 
+        if ($lessonFile->type !== 'photo' || $lessonFile->status !== 'approved') {
+            abort(403, 'This photo must be approved before an AI explanation can be generated.');
+        }
+
         if (! $this->canGenerate($user, $schoolClass)) {
             abort(403, 'You cannot generate an explanation for this photo.');
         }
@@ -38,6 +42,10 @@ class AiExplanationController extends Controller
     {
         $user = $request->user();
         $schoolClass = $lessonFile->lesson->schoolClass;
+
+        if ($lessonFile->type !== 'photo' || $lessonFile->status !== 'approved') {
+            abort(403, 'This photo is not available for viewing yet.');
+        }
 
         if (! $this->canView($user, $schoolClass)) {
             abort(403, 'You cannot view this photo explanation.');
@@ -64,7 +72,10 @@ class AiExplanationController extends Controller
         }
 
         if ($user->role === 'student' && $schoolClass->representative_id === $user->id) {
-            return true;
+            return ClassMembership::where('class_id', $schoolClass->id)
+                ->where('student_id', $user->id)
+                ->where('status', 'approved')
+                ->exists();
         }
 
         return false;
@@ -79,6 +90,7 @@ class AiExplanationController extends Controller
         if ($user->role === 'student') {
             return ClassMembership::where('class_id', $schoolClass->id)
                 ->where('student_id', $user->id)
+                ->where('status', 'approved')
                 ->exists();
         }
 

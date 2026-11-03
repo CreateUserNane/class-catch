@@ -8,19 +8,38 @@ use Illuminate\Support\Facades\Http;
 
 class OpenAiProvider implements AiProvider
 {
-    public function summarize(string $text): string
+    public function summarize(string $text, array $imagePaths = []): string
     {
+        $imageContent = [];
+        foreach ($imagePaths as $imagePath) {
+            if (! is_file($imagePath)) {
+                continue;
+            }
+
+            $mimeType = mime_content_type($imagePath) ?: 'image/jpeg';
+            $imageContent[] = [
+                'type' => 'image_url',
+                'image_url' => [
+                    'url' => 'data:'.$mimeType.';base64,'.$this->imageBase64($imagePath),
+                ],
+            ];
+        }
+
+        $userContent = $imageContent === []
+            ? $text
+            : array_merge([['type' => 'text', 'text' => $text]], $imageContent);
+
         return $this->complete([
             'model' => Config::get('ai.model'),
             'temperature' => 0.2,
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'You are an educational assistant. Produce a clear, organized lesson summary with key concepts, definitions, and takeaways.',
+                    'content' => 'You are an educational assistant. Write a concise but complete study guide based only on the supplied lesson text and classroom photos. Include legible board notes, diagrams, and equations when relevant; do not guess at unclear image content. Preserve important facts, definitions, and relationships; avoid repetition and filler. Use Markdown with a brief overview, clear section headings, and focused bullet points for key ideas and takeaways. Be precise, and do not omit essential details just to make the answer shorter.',
                 ],
                 [
                     'role' => 'user',
-                    'content' => $text,
+                    'content' => $userContent,
                 ],
             ],
         ]);

@@ -36,6 +36,42 @@
   color: #111827;
 }
 
+.join-requests-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.join-request-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.join-request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.join-request-empty {
+  padding: 12px 0 2px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.join-request-error {
+  margin: 0;
+}
+
+@media (max-width: 560px) {
+  .join-request-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .class-hero {
   display: flex;
   flex-direction: column;

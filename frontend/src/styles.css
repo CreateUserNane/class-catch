@@ -601,6 +601,52 @@ select {
   color: #fff;
 }
 
+/* Shared page title and breadcrumb styling for the application top bar. */
+.shell-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #6b7280;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.shell-crumb-link {
+  color: #6b7280;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.shell-crumb-link:hover {
+  color: #111827;
+}
+
+.shell-crumb-sep {
+  color: #d1d5db;
+  flex: 0 0 auto;
+}
+
+.shell-crumb-current {
+  overflow: hidden;
+  color: #111827;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .shell-crumb-link,
+  .shell-crumb-sep {
+    display: none;
+  }
+
+  .shell-crumb-current {
+    font-size: 0.9rem;
+  }
+}
+
 /* ---------- Modal ---------- */
 
 .modal-overlay {

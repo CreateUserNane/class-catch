@@ -1,4 +1,4 @@
-<aside class="sidebar">
+<aside class="sidebar" aria-label="Main navigation">
   <div class="sidebar-top">
     <a class="brand" [routerLink]="dashboardLink()">
       <span class="brand-mark">CC</span>
@@ -17,7 +17,7 @@
       </a>
       <a
         class="nav-item"
-        [routerLink]="lessonsLink()"
+        [routerLink]="classesLink()"
         [class.active]="isClassesActive()"
         [attr.aria-current]="isClassesActive() ? 'page' : null"
       >
@@ -28,7 +28,7 @@
   </div>
 
   <div class="sidebar-bottom">
-    <button type="button" class="nav-item logout" (click)="logout()">
+    <button type="button" class="nav-item logout" (click)="requestLogout()">
       <span class="material-symbols-outlined">logout</span>
       <span>Logout</span>
     </button>
@@ -60,3 +60,37 @@
     <ng-content />
   </main>
 </div>
+
+<nav class="mobile-bottom-nav" aria-label="Main navigation">
+  <a class="mobile-nav-item" [routerLink]="dashboardLink()" [class.active]="isDashboardActive()" [attr.aria-current]="isDashboardActive() ? 'page' : null">
+    <span class="material-symbols-outlined">grid_view</span><span>Dashboard</span>
+  </a>
+  <button type="button" class="mobile-nav-item" [class.active]="isClassesActive()" [attr.aria-current]="isClassesActive() ? 'page' : null" (click)="openClasses()">
+    <span class="material-symbols-outlined">folder</span><span>My Classes</span>
+  </button>
+  <button type="button" class="mobile-nav-item logout" (click)="requestLogout()">
+    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+  </button>
+</nav>
+
+@if (logoutConfirmOpen()) {
+  <div class="modal-overlay logout-confirm-overlay" (click)="cancelLogout()">
+    <section class="modal logout-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="logout-confirm-icon material-symbols-outlined" aria-hidden="true">logout</span>
+        <h2 class="modal-title" id="logout-confirm-title">Log out?</h2>
+        <button type="button" class="modal-close" aria-label="Close confirmation" (click)="cancelLogout()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="logout-confirm-copy">Are you sure you want to log out of your ClassCatch account?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="cancelLogout()">Stay signed in</button>
+        <button type="button" class="btn btn-dark" (click)="logout()">
+          <span class="material-symbols-outlined">logout</span>
+          Log out
+        </button>
+      </div>
+    </section>
+  </div>
+}

@@ -1,8 +1,8 @@
 <app-shell role="student">
-  <div header class="crumb-row">
-    <a class="crumb-link" routerLink="/dashboard/student">My Classes</a>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-current">{{ className() }}</span>
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" routerLink="/dashboard/student/classes">My Classes</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">{{ className() }}</span>
   </div>
 
   @if (loading()) {
@@ -21,7 +21,7 @@
     </div>
   } @else {
     <div class="page page-narrow">
-      <a routerLink="/dashboard/student" class="back-link">&larr; Back to All Classes</a>
+      <a routerLink="/dashboard/student/classes" class="back-link">&larr; Back to All Classes</a>
 
       <section class="card card-pad class-hero">
         <div class="hero-head">

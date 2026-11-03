@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
 import { LessonFile } from '../../models/lesson-file';
 import { Lesson } from '../../models/lesson';
-import { SchoolClass } from '../../models/class';
+import { ClassJoinRequest, SchoolClass } from '../../models/class';
 import { User } from '../../models/user';
 import { AppShell } from '../../shared/shell/shell';
 import { InitialsPipe } from '../../shared/pipes/initials';
@@ -43,6 +43,9 @@ export class TeacherClass implements OnInit {
   protected readonly schoolClass = signal<SchoolClass | null>(null);
   protected readonly lessons = signal<TeacherLessonView[]>([]);
   protected readonly students = signal<User[]>([]);
+  protected readonly joinRequests = signal<ClassJoinRequest[]>([]);
+  protected readonly approvingRequestId = signal<number | null>(null);
+  protected readonly joinRequestError = signal('');
 
   protected readonly activeTab = signal<'lessons' | 'students'>('lessons');
   protected readonly searchTerm = signal('');
@@ -62,6 +65,7 @@ export class TeacherClass implements OnInit {
   protected readonly representativeMessage = signal('');
 
   protected readonly studentCount = computed(() => this.students().length);
+  protected readonly pendingRequestCount = computed(() => this.joinRequests().length);
   protected readonly assignTarget = computed(() =>
     this.students().find((student) => student.id === this.assignTargetId()) ?? null,
   );
@@ -126,6 +130,27 @@ export class TeacherClass implements OnInit {
       .writeText(code)
       .then(() => this.toast.show(`Class code ${code} copied!`))
       .catch(() => this.toast.show(`Class code: ${code}`));
+  }
+
+  protected approveJoinRequest(joinRequest: ClassJoinRequest): void {
+    const classId = this.schoolClass()?.id;
+    if (!classId || this.approvingRequestId() !== null) {
+      return;
+    }
+
+    this.approvingRequestId.set(joinRequest.id);
+    this.joinRequestError.set('');
+    this.classService.approveJoinRequest(classId, joinRequest.id).subscribe({
+      next: () => {
+        this.approvingRequestId.set(null);
+        this.toast.show(`${joinRequest.student.name} has been added to the class.`);
+        this.loadClass(classId);
+      },
+      error: (error) => {
+        this.approvingRequestId.set(null);
+        this.joinRequestError.set(error?.error?.message || 'Could not approve this request.');
+      },
+    });
   }
 
   protected viewLesson(lessonId: number): void {
@@ -339,10 +364,12 @@ export class TeacherClass implements OnInit {
     forkJoin({
       schoolClass: this.classService.getClass(classId),
       students: this.classService.getClassMembers(classId),
+      joinRequests: this.classService.getJoinRequests(classId),
     }).subscribe({
-      next: ({ schoolClass, students }) => {
+      next: ({ schoolClass, students, joinRequests }) => {
         this.schoolClass.set(schoolClass);
         this.students.set(students);
+        this.joinRequests.set(joinRequests);
         this.loading.set(false);
         this.refreshLessons();
       },

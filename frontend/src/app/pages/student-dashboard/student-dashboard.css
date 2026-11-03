@@ -131,6 +131,15 @@
   min-height: 34px;
 }
 
+.class-card .badge-amber {
+  white-space: nowrap;
+}
+
+.class-card > .btn:disabled {
+  opacity: 0.8;
+  cursor: default;
+}
+
 .class-stats {
   gap: 7px;
 }

@@ -22,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/classes/join', [ClassMembershipController::class, 'join']);
     Route::get('/classes/joined', [ClassMembershipController::class, 'joined']);
+    Route::get('/classes/{schoolClass}/join-requests', [ClassMembershipController::class, 'joinRequests']);
+    Route::post('/classes/{schoolClass}/join-requests/{membership}/approve', [ClassMembershipController::class, 'approve']);
     Route::get('/classes/{schoolClass}', [ClassController::class, 'show']);
 
     Route::get('/classes/{schoolClass}/students', [ClassMembershipController::class, 'members']);
@@ -38,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lessons/{lesson}/files', [LessonFileController::class, 'uploadMaterial']);
     Route::post('/lessons/{lesson}/photos', [LessonFileController::class, 'uploadPhoto']);
     Route::delete('/lesson-files/{lessonFile}', [LessonFileController::class, 'destroy']);
+    Route::patch('/lesson-files/{lessonFile}/moderation', [LessonFileController::class, 'moderatePhoto']);
 
     Route::post('/lessons/{lesson}/summary', [AiSummaryController::class, 'generate']);
     Route::get('/lessons/{lesson}/summary', [AiSummaryController::class, 'index']);

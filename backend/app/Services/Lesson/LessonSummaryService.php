@@ -6,6 +6,7 @@ use App\Models\AiSummary;
 use App\Models\Lesson;
 use App\Services\Ai\AiManager;
 use App\Services\TextExtraction\TextExtractorManager;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 class LessonSummaryService
@@ -18,12 +19,16 @@ class LessonSummaryService
     public function generate(Lesson $lesson): AiSummary
     {
         $files = $lesson->files()->where('type', 'material')->get();
+        $photos = $lesson->files()->where('type', 'photo')->where('status', 'approved')->get();
 
-        if ($files->isEmpty()) {
-            throw new RuntimeException('No learning materials are available for this lesson.');
+        if ($files->isEmpty() && $photos->isEmpty()) {
+            throw new RuntimeException('No learning materials or classroom photos are available for this lesson.');
         }
 
-        $text = '';
+        $materialText = '';
+        if (trim((string) $lesson->description) !== '') {
+            $materialText .= "Description: {$lesson->description}\n";
+        }
 
         foreach ($files as $file) {
             try {
@@ -33,15 +38,22 @@ class LessonSummaryService
             }
 
             if (trim($extracted) !== '') {
-                $text .= $extracted."\n\n";
+                $materialText .= $extracted."\n\n";
             }
         }
 
-        if (trim($text) === '') {
-            throw new RuntimeException('No readable text could be extracted from the uploaded materials.');
+        $imagePaths = $photos
+            ->map(fn ($photo) => Storage::disk('public')->path($photo->path))
+            ->filter(fn ($path) => is_file($path))
+            ->values()
+            ->all();
+
+        if (trim($materialText) === '' && $imagePaths === []) {
+            throw new RuntimeException('No readable text or classroom photos are available for this lesson.');
         }
 
-        $summary = $this->ai->provider()->summarize($text);
+        $text = "Lesson: {$lesson->title}\n".$materialText;
+        $summary = $this->ai->provider()->summarize(trim($text), $imagePaths);
 
         return AiSummary::create([
             'lesson_id' => $lesson->id,

@@ -99,7 +99,13 @@
         <input id="email" type="email" formControlName="email" autocomplete="email" />
       </div>
       @if (form.controls.email.touched && form.controls.email.invalid) {
-        <p class="field-error">Enter a valid email address.</p>
+        @if (form.controls.email.hasError('emailDomainTypo')) {
+          <p class="field-error">This email domain looks misspelled. Check the address and try again.</p>
+        } @else if (form.controls.email.hasError('emailDomain')) {
+          <p class="field-error">Enter an email address with a valid domain, such as name@example.com.</p>
+        } @else {
+          <p class="field-error">Enter a valid email address.</p>
+        }
       }
 
       <label for="role">Role</label>

@@ -1,0 +1,36 @@
+# Features Added
+
+This document summarizes the ClassCatch features and fixes added during our work together.
+
+## Accounts and sign-in
+
+- Login sessions are restored after a page refresh, and account access is routed according to the user's teacher or student role.
+- Registration checks email formatting and common provider typos, and the server checks that the email domain exists.
+- After successful registration, a confirmation notification appears and the user is sent to the login page.
+- Logging out from desktop or mobile asks for confirmation first.
+- Login and registration pages have matching animated icon backgrounds, field icons, and a more polished chalk-inspired card design.
+
+## Classes and membership
+
+- Students request to join a class; requests remain **Pending** until the teacher approves them.
+- Students can see the pending state, and teachers can review and approve requests from the class page.
+- Teachers can assign a student representative to each class.
+- Teacher and student **Dashboards** are separate overview pages with role-specific counts and recent lessons.
+- **My Classes** is a separate page for the full class list and class actions.
+- Class detail pages link back to My Classes.
+
+## Classroom photos and AI
+
+- Only the teacher or the assigned student representative can upload photos for that class. Representatives upload from inside the class, where the photo can be associated with one of its lessons.
+- Photo selection supports browsing and drag and drop, with file checks and a preview before upload.
+- Representative uploads wait for teacher review. Students see the pending status; approved photos appear to the class.
+- Teachers can approve or reject uploads and delete photos if they were approved by mistake.
+- AI lesson summaries can include approved classroom photos. Only teachers can generate or regenerate summaries; students can read the summaries.
+- The lesson summary was moved below the lesson materials and redesigned with clearer hierarchy, spacing, and icons.
+- Classroom photo files are stored in Laravel's public storage under `classroom-photos`; lesson records store the file metadata and path.
+
+## Navigation and layout
+
+- Desktop uses a sidebar; mobile uses a fixed bottom navigation bar.
+- Dashboard and My Classes highlights follow the current page, including class detail and lesson pages.
+- Breadcrumbs and top bar styling are shared across pages, with matching navigation colors and icon sizing.

@@ -48,6 +48,10 @@
   gap: 12px;
 }
 
+.pending-request-badge {
+  align-self: flex-start;
+}
+
 .class-card-top {
   align-items: flex-start;
 }

@@ -54,14 +54,33 @@ class LessonController extends Controller
             abort(403, 'You cannot view this lesson.');
         }
 
-        return response()->json($lesson->load([
+        $lesson->load([
             'teacher',
             'schoolClass.teacher',
-            'files',
-            'files.uploader',
+            'schoolClass.representative',
             'summary',
             'summary.lessonFile.uploader',
-        ]));
+        ]);
+
+        $isTeacher = $user->role === 'teacher' && $schoolClass->teacher_id === $user->id;
+        $lesson->setRelation('files', $lesson->files()
+            ->with('uploader')
+            ->when(! $isTeacher, function ($query) use ($user) {
+                $query->where(function ($visible) use ($user) {
+                    $visible->where('type', 'material')
+                        ->orWhere(function ($photo) use ($user) {
+                            $photo->where('type', 'photo')
+                                ->where(function ($status) use ($user) {
+                                    $status->where('status', 'approved')
+                                        ->orWhere('uploaded_by', $user->id);
+                                });
+                        });
+                });
+            })
+            ->latest()
+            ->get());
+
+        return response()->json($lesson);
     }
 
     public function update(Request $request, Lesson $lesson)
@@ -116,6 +135,7 @@ class LessonController extends Controller
         if ($user->role === 'student') {
             return ClassMembership::where('class_id', $schoolClass->id)
                 ->where('student_id', $user->id)
+                ->where('status', 'approved')
                 ->exists();
         }
 

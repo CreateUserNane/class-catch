@@ -19,6 +19,7 @@ export class AppShell {
 
   protected readonly user = this.authService.user;
   protected readonly currentUrl = signal(this.router.url);
+  protected readonly logoutConfirmOpen = signal(false);
 
   constructor() {
     const subscription = this.router.events.subscribe((event) => {
@@ -34,23 +35,38 @@ export class AppShell {
     return this.role() === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
   }
 
-  protected lessonsLink(): string {
-    return this.role() === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
+  protected classesLink(): string {
+    return this.role() === 'teacher' ? '/dashboard/teacher/classes' : '/dashboard/student/classes';
   }
 
   protected isDashboardActive(): boolean {
-    return this.currentUrl().startsWith(this.dashboardLink());
+    return this.normalizedPath() === this.dashboardLink();
   }
 
   protected isClassesActive(): boolean {
-    return (
-      this.currentUrl().startsWith('/classes') ||
-      this.currentUrl().startsWith('/student/classes') ||
-      this.currentUrl().startsWith('/lessons')
-    );
+    const url = this.normalizedPath();
+    const classDetailPrefix = this.role() === 'teacher' ? '/classes/' : '/student/classes/';
+    return url.startsWith(this.classesLink()) || url.startsWith(classDetailPrefix) || url.startsWith('/lessons/');
+  }
+
+  private normalizedPath(): string {
+    return this.currentUrl().split(/[?#]/, 1)[0].replace(/\/+$/, '') || '/';
+  }
+
+  protected openClasses(): void {
+    void this.router.navigateByUrl(this.classesLink());
+  }
+
+  protected requestLogout(): void {
+    this.logoutConfirmOpen.set(true);
+  }
+
+  protected cancelLogout(): void {
+    this.logoutConfirmOpen.set(false);
   }
 
   protected logout(): void {
+    this.logoutConfirmOpen.set(false);
     this.authService.logout().subscribe({
       next: () => this.router.navigateByUrl('/login'),
       error: () => this.router.navigateByUrl('/login'),

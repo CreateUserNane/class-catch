@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['lesson_id', 'uploaded_by', 'type', 'original_name', 'path', 'mime_type', 'size'])]
+#[Fillable(['lesson_id', 'uploaded_by', 'type', 'original_name', 'path', 'mime_type', 'size', 'status'])]
 class LessonFile extends Model
 {
     use HasFactory;

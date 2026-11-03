@@ -1,8 +1,8 @@
 <app-shell role="teacher">
-  <div header class="crumb-row">
-    <span class="crumb">My Classes</span>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-current">{{ className() }}</span>
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" routerLink="/dashboard/teacher/classes">My Classes</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">{{ className() }}</span>
   </div>
 
   @if (loading()) {
@@ -21,7 +21,7 @@
     </div>
   } @else {
     <div class="page page-narrow">
-      <a routerLink="/dashboard/teacher" class="back-link">Back to All Classes</a>
+      <a routerLink="/dashboard/teacher/classes" class="back-link">Back to All Classes</a>
 
       <section class="card card-pad class-hero">
         <div class="hero-head">
@@ -79,6 +79,9 @@
             <span class="material-symbols-outlined">group</span>
             Enrolled Students
             <span class="count">{{ studentCount() }}</span>
+            @if (pendingRequestCount() > 0) {
+              <span class="count">{{ pendingRequestCount() }} pending</span>
+            }
           </button>
         </div>
 
@@ -150,6 +153,55 @@
           <div class="students-pane stack">
             <div class="roster-info card card-pad-sm">
               <span class="muted small">Students enroll using class code <strong class="mono strong">{{ classCode() }}</strong>. One student can be assigned as representative to upload classroom whiteboard photos.</span>
+            </div>
+
+            <div class="join-requests-card card card-pad-sm">
+              <div class="row-between">
+                <div class="stack-sm" style="gap: 3px">
+                  <h3 class="roster-title">Requests to Join</h3>
+                  <span class="tiny muted">Approve students before they can access class materials.</span>
+                </div>
+                <span class="badge" [class]="pendingRequestCount() ? 'badge-amber' : 'badge-gray'">
+                  {{ pendingRequestCount() }} Pending
+                </span>
+              </div>
+
+              @if (joinRequestError()) {
+                <div class="alert alert-error join-request-error">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ joinRequestError() }}</span>
+                </div>
+              }
+
+              @if (pendingRequestCount() === 0) {
+                <p class="muted small join-request-empty">No students are waiting for approval.</p>
+              } @else {
+                <div class="join-request-list">
+                  @for (request of joinRequests(); track request.id) {
+                    <div class="join-request-row">
+                      <div class="row">
+                        <span class="avatar soft">{{ request.student.name | initials }}</span>
+                        <div class="stack-sm" style="gap: 1px">
+                          <span class="strong">{{ request.student.name }}</span>
+                          <span class="tiny muted">{{ request.student.email }}</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn btn-dark btn-sm"
+                        [disabled]="approvingRequestId() !== null"
+                        (click)="approveJoinRequest(request)"
+                      >
+                        @if (approvingRequestId() === request.id) {
+                          <span class="spinner light"></span> Approving…
+                        } @else {
+                          <span class="material-symbols-outlined">check</span> Approve
+                        }
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
             </div>
 
             <div class="rep-spotlight card card-pad">

@@ -1,0 +1,24 @@
+<app-shell role="student">
+  <div header class="shell-crumbs"><span class="shell-crumb-current">Dashboard</span></div>
+  <div class="page overview-page">
+    <div class="overview-heading">
+      <div><p class="eyebrow">STUDENT WORKSPACE</p><h1>Welcome back, {{ user()?.name }}</h1><p class="muted">Pick up where your classes left off.</p></div>
+      <a class="btn btn-dark" routerLink="/dashboard/student/classes"><span class="material-symbols-outlined">folder_open</span> My Classes <span class="material-symbols-outlined">arrow_forward</span></a>
+    </div>
+
+    @if (error()) { <div class="alert alert-error"><span class="material-symbols-outlined">error</span>{{ error() }}</div> }
+
+    <section class="overview-stats" aria-label="Your learning overview">
+      <article class="overview-stat"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ approvedCount() }}</strong><span>Enrolled classes</span></div></article>
+      <article class="overview-stat"><span class="stat-icon pending"><span class="material-symbols-outlined">hourglass_top</span></span><div><strong>{{ pendingCount() }}</strong><span>Requests pending</span></div></article>
+      <article class="overview-stat"><span class="stat-icon lessons"><span class="material-symbols-outlined">menu_book</span></span><div><strong>{{ totalLessonCount() }}</strong><span>Available lessons</span></div></article>
+    </section>
+
+    <section class="overview-section">
+      <div class="section-heading"><div><p class="eyebrow">LATEST FROM YOUR CLASSES</p><h2>Recent lessons</h2></div><a routerLink="/dashboard/student/classes">Browse classes <span class="material-symbols-outlined">arrow_forward</span></a></div>
+      @if (loading()) { <div class="overview-empty"><span class="spinner"></span><span>Loading your lessons…</span></div> }
+      @else if (recentLessons().length === 0) { <div class="overview-empty"><span class="material-symbols-outlined">auto_stories</span><strong>No lessons to catch up on yet</strong><span>Approved classes and new lessons will appear here.</span><a class="btn btn-outline btn-sm" routerLink="/dashboard/student/classes">View My Classes</a></div> }
+      @else { <div class="lesson-list">@for (item of recentLessons(); track item.lesson.id) { <article class="lesson-row"><span class="lesson-icon material-symbols-outlined">description</span><div class="lesson-copy"><span>{{ item.className }}</span><h3>{{ item.lesson.title }}</h3><small>{{ item.lesson.created_at | date: 'MMM d, y' }}</small></div><button class="btn btn-outline btn-sm" type="button" (click)="openLesson(item.lesson.id)">Open <span class="material-symbols-outlined">arrow_forward</span></button></article> }</div> }
+    </section>
+  </div>
+</app-shell>

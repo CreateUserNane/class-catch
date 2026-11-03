@@ -7,6 +7,15 @@ export interface ClassMember {
   student: User;
 }
 
+export interface ClassJoinRequest {
+  id: number;
+  class_id: number;
+  student_id: number;
+  status: 'pending' | 'approved';
+  student: User;
+  created_at: string;
+}
+
 export interface SchoolClass {
   id: number;
   teacher_id: number;
@@ -14,7 +23,9 @@ export interface SchoolClass {
   description: string | null;
   code: string;
   representative_id: number | null;
+  membership_status?: 'pending' | 'approved';
   students_count?: number;
+  pending_requests_count?: number;
   teacher?: User;
   representative?: User | null;
   members?: ClassMember[];

@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
-import { TeacherDashboard } from './pages/teacher-dashboard/teacher-dashboard';
-import { StudentDashboard } from './pages/student-dashboard/student-dashboard';
+import { TeacherDashboard } from './pages/teacher-overview/teacher-overview';
+import { TeacherClasses } from './pages/teacher-dashboard/teacher-dashboard';
+import { StudentDashboard } from './pages/student-overview/student-overview';
+import { StudentClasses } from './pages/student-dashboard/student-dashboard';
 import { TeacherClass } from './pages/teacher-class/teacher-class';
 import { StudentClass } from './pages/student-class/student-class';
 import { LessonPage } from './pages/lesson-page/lesson-page';
@@ -14,9 +16,19 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   {
+    path: 'dashboard/teacher/classes',
+    component: TeacherClasses,
+    canActivate: [AuthGuard('teacher')],
+  },
+  {
     path: 'dashboard/teacher',
     component: TeacherDashboard,
     canActivate: [AuthGuard('teacher')],
+  },
+  {
+    path: 'dashboard/student/classes',
+    component: StudentClasses,
+    canActivate: [AuthGuard('student')],
   },
   {
     path: 'dashboard/student',

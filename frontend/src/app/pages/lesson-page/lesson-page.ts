@@ -38,6 +38,10 @@ export class LessonPage implements OnInit {
   protected readonly explanations = signal<Record<number, AiSummary>>({});
   protected readonly generatingExplanationId = signal<number | null>(null);
   protected readonly explanationErrorId = signal<number | null>(null);
+  protected readonly moderatingPhotoId = signal<number | null>(null);
+  protected readonly photoModerationErrorId = signal<number | null>(null);
+  protected readonly deletingPhotoId = signal<number | null>(null);
+  protected readonly photoDeleteErrorId = signal<number | null>(null);
 
   protected readonly uploadModalOpen = signal(false);
 
@@ -64,15 +68,26 @@ export class LessonPage implements OnInit {
     return !!lesson && !!user && user.role === 'teacher' && lesson.teacher_id === user.id;
   });
 
+  protected readonly canModeratePhotos = computed(() => {
+    const lesson = this.lesson();
+    const user = this.user();
+
+    return !!lesson && !!user && user.role === 'teacher' && lesson.teacher_id === user.id;
+  });
+
   protected readonly canUploadPhoto = computed(() => {
     const lesson = this.lesson();
     const user = this.user();
 
-    if (!lesson || !user || user.role !== 'student') {
+    if (!lesson || !user) {
       return false;
     }
 
-    return lesson.school_class?.representative_id === user.id;
+    const isTeacher = user.role === 'teacher' && Number(lesson.teacher_id) === Number(user.id);
+    const representativeId = lesson.school_class?.representative_id ?? lesson.school_class?.representative?.id;
+    const isRepresentative = user.role === 'student' && Number(representativeId) === Number(user.id);
+
+    return isTeacher || isRepresentative;
   });
 
   protected readonly canGenerateExplanation = computed(() => {
@@ -83,8 +98,9 @@ export class LessonPage implements OnInit {
       return false;
     }
 
-    const isTeacher = user.role === 'teacher' && lesson.teacher_id === user.id;
-    const isRepresentative = user.role === 'student' && lesson.school_class?.representative_id === user.id;
+    const isTeacher = user.role === 'teacher' && Number(lesson.teacher_id) === Number(user.id);
+    const representativeId = lesson.school_class?.representative_id ?? lesson.school_class?.representative?.id;
+    const isRepresentative = user.role === 'student' && Number(representativeId) === Number(user.id);
 
     return isTeacher || isRepresentative;
   });
@@ -213,6 +229,63 @@ export class LessonPage implements OnInit {
     });
   }
 
+  protected moderatePhoto(file: LessonFile, status: 'approved' | 'rejected'): void {
+    if (!this.canModeratePhotos() || this.moderatingPhotoId() !== null) {
+      return;
+    }
+
+    this.moderatingPhotoId.set(file.id);
+    this.photoModerationErrorId.set(null);
+    this.classService.moderatePhoto(file.id, status).subscribe({
+      next: (updatedFile) => {
+        this.moderatingPhotoId.set(null);
+        this.lesson.update((current) => current
+          ? { ...current, files: (current.files ?? []).map((item) => item.id === updatedFile.id ? updatedFile : item) }
+          : current);
+        this.toast.show(status === 'approved'
+          ? 'Photo approved and published. Regenerate the lesson summary to include it.'
+          : 'Photo rejected. It is hidden from the class.');
+      },
+      error: (error) => {
+        this.moderatingPhotoId.set(null);
+        this.photoModerationErrorId.set(file.id);
+        this.toast.show(error?.error?.message || 'Could not update the photo review.');
+      },
+    });
+  }
+
+  protected deletePhoto(file: LessonFile): void {
+    if (!this.canModeratePhotos() || file.type !== 'photo' || this.deletingPhotoId() !== null) {
+      return;
+    }
+
+    if (!window.confirm(`Delete "${file.original_name}" from this lesson?`)) {
+      return;
+    }
+
+    this.deletingPhotoId.set(file.id);
+    this.photoDeleteErrorId.set(null);
+    this.classService.deleteFile(file.id).subscribe({
+      next: () => {
+        this.deletingPhotoId.set(null);
+        this.lesson.update((current) => current
+          ? { ...current, files: (current.files ?? []).filter((item) => item.id !== file.id) }
+          : current);
+        this.explanations.update((current) => {
+          const next = { ...current };
+          delete next[file.id];
+          return next;
+        });
+        this.toast.show('Photo removed from the lesson.');
+      },
+      error: (error) => {
+        this.deletingPhotoId.set(null);
+        this.photoDeleteErrorId.set(file.id);
+        this.toast.show(error?.error?.message || 'Could not delete this photo.');
+      },
+    });
+  }
+
   protected explanationFor(file: LessonFile): AiSummary | null {
     return this.explanations()[file.id] ?? null;
   }
@@ -262,7 +335,7 @@ export class LessonPage implements OnInit {
   }
 
   private loadExplanations(lesson: Lesson): void {
-    const photoFiles = (lesson.files ?? []).filter((file) => file.type === 'photo');
+    const photoFiles = (lesson.files ?? []).filter((file) => file.type === 'photo' && file.status === 'approved');
 
     photoFiles.forEach((file) => {
       this.classService.getExplanation(file.id).subscribe({

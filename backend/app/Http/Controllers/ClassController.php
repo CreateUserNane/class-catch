@@ -17,7 +17,8 @@ class ClassController extends Controller
 
         return response()->json($user->classes()
             ->with(['teacher', 'representative'])
-            ->withCount('memberships as students_count')
+            ->withCount(['memberships as students_count' => fn ($query) => $query->where('status', 'approved')])
+            ->withCount(['memberships as pending_requests_count' => fn ($query) => $query->where('status', 'pending')])
             ->latest()
             ->get());
     }
@@ -33,11 +34,18 @@ class ClassController extends Controller
         if ($user->role === 'student' &&
             ! ClassMembership::where('class_id', $schoolClass->id)
                 ->where('student_id', $user->id)
+                ->where('status', 'approved')
                 ->exists()) {
             abort(403, 'You must be a member of this class.');
         }
 
-        return response()->json($schoolClass->load(['teacher', 'representative', 'members.student']));
+        $schoolClass->load([
+            'teacher',
+            'representative',
+            'members' => fn ($query) => $query->where('status', 'approved')->with('student'),
+        ]);
+
+        return response()->json($schoolClass);
     }
 
     public function store(Request $request)

@@ -28,23 +28,34 @@ class ClassMembershipController extends Controller
             ], 422);
         }
 
-        $alreadyJoined = ClassMembership::where('class_id', $schoolClass->id)
+        $membership = ClassMembership::where('class_id', $schoolClass->id)
             ->where('student_id', $user->id)
-            ->exists();
+            ->first();
 
-        if ($alreadyJoined) {
+        if ($membership?->status === 'approved') {
             return response()->json([
                 'message' => 'You have already joined this class.',
                 'errors' => ['code' => ['You have already joined this class.']],
             ], 422);
         }
 
-        ClassMembership::create([
+        if ($membership) {
+            return response()->json([
+                'message' => 'Your request to join this class is pending approval.',
+                'status' => $membership->status,
+            ]);
+        }
+
+        $membership = ClassMembership::create([
             'class_id' => $schoolClass->id,
             'student_id' => $user->id,
+            'status' => 'pending',
         ]);
 
-        return response()->json($schoolClass->load('teacher'), 201);
+        return response()->json([
+            'message' => 'Your request to join this class is pending approval.',
+            'status' => $membership->status,
+        ], 201);
     }
 
     public function joined(Request $request)
@@ -55,10 +66,45 @@ class ClassMembershipController extends Controller
         $classes = $user->classMemberships()
             ->with(['schoolClass.teacher', 'schoolClass.representative'])
             ->get()
-            ->map(fn (ClassMembership $membership) => $membership->schoolClass)
+            ->map(function (ClassMembership $membership) {
+                $schoolClass = $membership->schoolClass;
+
+                if ($schoolClass) {
+                    $schoolClass->setAttribute('membership_status', $membership->status);
+                }
+
+                return $schoolClass;
+            })
             ->filter();
 
         return response()->json($classes->values());
+    }
+
+    public function joinRequests(Request $request, SchoolClass $schoolClass)
+    {
+        $this->ensureClassTeacher($request->user(), $schoolClass);
+
+        return response()->json(
+            ClassMembership::where('class_id', $schoolClass->id)
+                ->where('status', 'pending')
+                ->with('student')
+                ->oldest()
+                ->get(),
+        );
+    }
+
+    public function approve(Request $request, SchoolClass $schoolClass, int $membership)
+    {
+        $this->ensureClassTeacher($request->user(), $schoolClass);
+
+        $joinRequest = ClassMembership::where('class_id', $schoolClass->id)
+            ->whereKey($membership)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $joinRequest->update(['status' => 'approved']);
+
+        return response()->json($joinRequest->load('student'));
     }
 
     public function members(Request $request, SchoolClass $schoolClass)
@@ -68,6 +114,7 @@ class ClassMembershipController extends Controller
         $isTeacher = $user->role === 'teacher' && $schoolClass->teacher_id === $user->id;
         $isMember = $user->role === 'student' && ClassMembership::where('class_id', $schoolClass->id)
             ->where('student_id', $user->id)
+            ->where('status', 'approved')
             ->exists();
 
         if (! $isTeacher && ! $isMember) {
@@ -75,6 +122,7 @@ class ClassMembershipController extends Controller
         }
 
         $members = ClassMembership::where('class_id', $schoolClass->id)
+            ->where('status', 'approved')
             ->with('student')
             ->get()
             ->pluck('student');
@@ -86,6 +134,13 @@ class ClassMembershipController extends Controller
     {
         if ($user->role !== 'student') {
             abort(403, 'Only students can join classes.');
+        }
+    }
+
+    private function ensureClassTeacher(User $user, SchoolClass $schoolClass): void
+    {
+        if ($user->role !== 'teacher' || $schoolClass->teacher_id !== $user->id) {
+            abort(403, 'Only the class teacher can manage join requests.');
         }
     }
 }

@@ -1,8 +1,8 @@
 <app-shell role="student">
-  <div header class="crumb-row">
-    <a class="crumb-link" routerLink="/dashboard/student">Dashboard</a>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-current">My Classes</span>
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" routerLink="/dashboard/student">Dashboard</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">My Classes</span>
   </div>
 
   <div class="page page-narrow">
@@ -24,30 +24,14 @@
       </div>
     }
 
-    <div class="stats-row">
-      <div class="stat">
-        <span class="stat-value">{{ totalClasses() }}</span>
-        <span class="stat-label">Classes Enrolled</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">{{ totalLessons() }}</span>
-        <span class="stat-label">Lessons Published</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">{{ summariesReady() }}</span>
-        <span class="stat-label">AI Summaries</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">{{ totalPhotos() }}</span>
-        <span class="stat-label">Classroom Photos</span>
-      </div>
-    </div>
-
-    <section class="classes-section stack-lg">
+    <section id="classes" class="classes-section stack-lg">
       <div class="section-head">
         <div class="row">
           <h2 class="section-title"><span class="material-symbols-outlined">school</span> My Classes</h2>
-          <span class="badge badge-gray">{{ classes().length }} Class{{ classes().length !== 1 ? 'es' : '' }}</span>
+          <span class="badge badge-gray">
+            {{ totalClasses() }} Enrolled
+            @if (pendingClasses() > 0) { · {{ pendingClasses() }} Pending }
+          </span>
         </div>
       </div>
 
@@ -73,10 +57,17 @@
                       {{ schoolClass.teacher?.name }}
                     </span>
                   </div>
-                  <button type="button" class="code-chip mono" (click)="copyCode(schoolClass.code)" title="Click to copy class code">
-                    <span>{{ schoolClass.code }}</span>
-                    <span class="material-symbols-outlined">content_copy</span>
-                  </button>
+                  @if (schoolClass.membership_status === 'approved') {
+                    <button type="button" class="code-chip mono" (click)="copyCode(schoolClass.code)" title="Click to copy class code">
+                      <span>{{ schoolClass.code }}</span>
+                      <span class="material-symbols-outlined">content_copy</span>
+                    </button>
+                  } @else {
+                    <span class="badge badge-amber">
+                      <span class="material-symbols-outlined">schedule</span>
+                      Pending approval
+                    </span>
+                  }
                 </div>
 
                 @if (schoolClass.description) {
@@ -85,91 +76,39 @@
                   <p class="class-desc muted">No description yet.</p>
                 }
 
-                <div class="class-stats row">
-                  <span class="file-chip">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    {{ lessonsForClass(schoolClass.id).length }} Lessons
-                  </span>
-                  <span class="file-chip">
-                    <span class="material-symbols-outlined">auto_awesome</span>
-                    {{ summariesForClass(schoolClass.id) }} Summaries
-                  </span>
-                </div>
+                @if (schoolClass.membership_status === 'approved') {
+                  <div class="class-stats row">
+                    <span class="file-chip">
+                      <span class="material-symbols-outlined">menu_book</span>
+                      {{ lessonsForClass(schoolClass.id).length }} Lessons
+                    </span>
+                    <span class="file-chip">
+                      <span class="material-symbols-outlined">auto_awesome</span>
+                      {{ summariesForClass(schoolClass.id) }} Summaries
+                    </span>
+                  </div>
+                } @else {
+                  <p class="class-desc muted">Your request is waiting for the teacher. Lessons will be available after approval.</p>
+                }
               </div>
 
-              <button type="button" class="btn btn-dark btn-block" (click)="openClass(schoolClass.id)">
-                Open Class
-                <span class="material-symbols-outlined">arrow_forward</span>
-              </button>
+              @if (schoolClass.membership_status === 'approved') {
+                <button type="button" class="btn btn-dark btn-block" (click)="openClass(schoolClass.id)">
+                  Open Class
+                  <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+              } @else {
+                <button type="button" class="btn btn-outline btn-block" disabled>
+                  <span class="material-symbols-outlined">hourglass_top</span>
+                  Waiting for approval
+                </button>
+              }
             </article>
           }
         }
       </div>
     </section>
 
-    <section class="lessons-section stack-lg">
-      <div class="section-head">
-        <div class="row">
-          <h2 class="section-title"><span class="material-symbols-outlined">schedule</span> Recent Lessons</h2>
-          <span class="badge badge-gray">{{ recentLessons().length }} Lesson{{ recentLessons().length !== 1 ? 's' : '' }}</span>
-        </div>
-      </div>
-
-      @if (recentLessons().length === 0) {
-        <div class="card empty">
-          <span class="material-symbols-outlined">menu_book</span>
-          <span>No lessons published yet.</span>
-        </div>
-      } @else {
-        <div class="recent-lessons stack">
-          @for (item of recentLessons(); track item.lesson.id) {
-            <article class="card recent-lesson card-pad">
-              <div class="row-between">
-                <div class="stack-sm" style="gap: 2px">
-                  <span class="tiny muted strong mono">{{ item.className }}</span>
-                  <h3 class="lesson-title">{{ item.lesson.title }}</h3>
-                </div>
-                <button type="button" class="btn btn-dark btn-sm" (click)="openLesson(item.lesson.id)">
-                  Open Lesson
-                  <span class="material-symbols-outlined">arrow_forward</span>
-                </button>
-              </div>
-
-              <div class="row wrap lesson-files">
-                <span class="file-chip muted">
-                  <span class="material-symbols-outlined">schedule</span>
-                  {{ item.lesson.created_at | date: 'MMM d, y' }}
-                </span>
-                <span class="badge" [class]="item.lesson.summary ? 'badge-green' : 'badge-gray'">
-                  @if (item.lesson.summary) {
-                    <span class="material-symbols-outlined">auto_awesome</span>
-                    Summary ready
-                  } @else {
-                    <span class="material-symbols-outlined">remove</span>
-                    Pending
-                  }
-                </span>
-              </div>
-            </article>
-          }
-        </div>
-      }
-    </section>
-
-    @if (isRepresentative()) {
-      <section class="card card-pad rep-tools">
-        <div class="row-between">
-          <div class="stack-sm" style="gap: 2px">
-            <span class="small muted strong">Student Representative tools</span>
-            <span class="tiny muted">Upload whiteboard photos so your classmates can access AI explanations.</span>
-          </div>
-          <button type="button" class="btn btn-dark" [disabled]="uploadLessons().length === 0" (click)="openUploadModal()">
-            <span class="material-symbols-outlined">add_a_photo</span>
-            Upload Classroom Photo
-          </button>
-        </div>
-      </section>
-    }
   </div>
 
   <!-- Join Class modal -->
@@ -205,11 +144,4 @@
     </div>
   }
 
-  <app-upload-photo-modal
-    [open]="uploadModalOpen()"
-    [lessons]="uploadLessons()"
-    [defaultLessonId]="uploadDefaultLessonId()"
-    (dismissed)="closeUploadModal()"
-    (uploaded)="onPhotoUploaded()"
-  ></app-upload-photo-modal>
 </app-shell>

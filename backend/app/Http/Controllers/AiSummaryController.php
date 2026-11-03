@@ -68,6 +68,7 @@ class AiSummaryController extends Controller
         if ($user->role === 'student') {
             return ClassMembership::where('class_id', $schoolClass->id)
                 ->where('student_id', $user->id)
+                ->where('status', 'approved')
                 ->exists();
         }
 

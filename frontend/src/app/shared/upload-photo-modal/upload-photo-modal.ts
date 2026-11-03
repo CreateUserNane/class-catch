@@ -80,7 +80,9 @@ export class UploadPhotoModal {
 
   protected onFileInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.acceptFile(input.files?.[0] ?? null);
+    const file = input.files?.[0] ?? null;
+    input.value = '';
+    this.acceptFile(file);
   }
 
   protected onDrop(event: DragEvent): void {
@@ -92,27 +94,45 @@ export class UploadPhotoModal {
     event.preventDefault();
   }
 
-  private acceptFile(file: File | null): void {
+  private async acceptFile(file: File | null): Promise<void> {
     if (!file) {
       return;
     }
 
-    const type = file.type.toLowerCase();
-    const allowed = /^(image\/jpeg|image\/jpg|image\/png|image\/webp|image\/gif)$/;
+    this.selectedFile.set(null);
+    this.revokePreview();
+    this.error.set('');
 
-    if (!allowed.test(type)) {
-      this.error.set('Only JPG, JPEG, PNG, WEBP and GIF photos are allowed.');
-      return;
-    }
+    const type = file.type.toLowerCase();
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    const allowedTypes = new Set(['image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png', 'image/webp', 'image/gif']);
+    const allowedExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif']);
 
     if (file.size > this.maxBytes) {
       this.error.set('Photo is too large (maximum 5 MB).');
       return;
     }
 
-    this.error.set('');
+    if (!allowedTypes.has(type) && !allowedExtensions.has(extension) && !(await this.hasSupportedImageSignature(file))) {
+      this.error.set('Only JPG, JPEG, PNG, WEBP and GIF photos are allowed.');
+      return;
+    }
+
     this.selectedFile.set(file);
     this.previewUrl.set(URL.createObjectURL(file));
+    this.upload();
+  }
+
+  private async hasSupportedImageSignature(file: File): Promise<boolean> {
+    const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const startsWith = (...signature: number[]): boolean => signature.every((byte, index) => bytes[index] === byte);
+    const isJpeg = startsWith(0xff, 0xd8, 0xff);
+    const isPng = startsWith(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a);
+    const isGif = startsWith(0x47, 0x49, 0x46, 0x38);
+    const isWebp = startsWith(0x52, 0x49, 0x46, 0x46) &&
+      bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+
+    return isJpeg || isPng || isGif || isWebp;
   }
 
   protected removeFile(): void {
@@ -135,7 +155,7 @@ export class UploadPhotoModal {
       next: (uploaded) => {
         this.uploading.set(false);
         this.revokePreview();
-        this.toast.show('Classroom photo uploaded — AI will process it shortly.');
+        this.toast.show('Status: Pending teacher review. The photo will be published after approval.');
         this.uploaded.emit(uploaded);
         this.dismissed.emit();
       },

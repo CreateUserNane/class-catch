@@ -25,6 +25,7 @@ class RepresentativeController extends Controller
 
         $isMember = ClassMembership::where('class_id', $schoolClass->id)
             ->where('student_id', $student->id)
+            ->where('status', 'approved')
             ->exists();
 
         if (! $isMember) {

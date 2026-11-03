@@ -1,0 +1,28 @@
+<app-shell role="teacher">
+  <div header class="shell-crumbs"><span class="shell-crumb-current">Dashboard</span></div>
+  <div class="page overview-page">
+    <div class="overview-heading">
+      <div><p class="eyebrow">TEACHER WORKSPACE</p><h1>Welcome back, {{ user()?.name }}</h1><p class="muted">A quick view of your classes and what needs attention.</p></div>
+      <a class="btn btn-dark" routerLink="/dashboard/teacher/classes"><span class="material-symbols-outlined">folder_open</span> My Classes <span class="material-symbols-outlined">arrow_forward</span></a>
+    </div>
+
+    @if (error()) { <div class="alert alert-error"><span class="material-symbols-outlined">error</span>{{ error() }}</div> }
+
+    <section class="overview-stats" aria-label="Teaching overview">
+      <article class="overview-stat"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ classes().length }}</strong><span>Classes</span></div></article>
+      <article class="overview-stat"><span class="stat-icon lessons"><span class="material-symbols-outlined">groups</span></span><div><strong>{{ studentCount() }}</strong><span>Enrolled students</span></div></article>
+      <article class="overview-stat"><span class="stat-icon pending"><span class="material-symbols-outlined">how_to_reg</span></span><div><strong>{{ pendingCount() }}</strong><span>Join requests</span></div></article>
+    </section>
+
+    @if (pendingCount() > 0) {
+      <a class="attention-card" routerLink="/dashboard/teacher/classes"><span class="material-symbols-outlined">notifications_active</span><span><strong>{{ pendingCount() }} student request{{ pendingCount() === 1 ? '' : 's' }} waiting</strong><small>Open a class to review its join requests.</small></span><span class="material-symbols-outlined arrow">arrow_forward</span></a>
+    }
+
+    <section class="overview-section">
+      <div class="section-heading"><div><p class="eyebrow">YOUR CLASSROOMS</p><h2>Recent lessons</h2></div><a routerLink="/dashboard/teacher/classes">Manage classes <span class="material-symbols-outlined">arrow_forward</span></a></div>
+      @if (loading()) { <div class="overview-empty"><span class="spinner"></span><span>Loading your lessons…</span></div> }
+      @else if (recentLessons().length === 0) { <div class="overview-empty"><span class="material-symbols-outlined">auto_stories</span><strong>No lessons published yet</strong><span>Create a class and add its first lesson to see updates here.</span><a class="btn btn-outline btn-sm" routerLink="/dashboard/teacher/classes">Open My Classes</a></div> }
+      @else { <div class="lesson-list">@for (item of recentLessons(); track item.lesson.id) { <article class="lesson-row"><span class="lesson-icon material-symbols-outlined">description</span><div class="lesson-copy"><span>{{ item.className }}</span><h3>{{ item.lesson.title }}</h3><small>{{ item.lesson.created_at | date: 'MMM d, y' }}</small></div><button class="btn btn-outline btn-sm" type="button" (click)="openLesson(item.lesson.id)">Open <span class="material-symbols-outlined">arrow_forward</span></button></article> }</div> }
+    </section>
+  </div>
+</app-shell>

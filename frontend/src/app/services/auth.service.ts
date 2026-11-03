@@ -89,9 +89,5 @@ export class AuthService {
         this.clearSession();
       }
     }
-
-    this.getUser().subscribe({
-      error: () => this.clearSession(),
-    });
   }
 }

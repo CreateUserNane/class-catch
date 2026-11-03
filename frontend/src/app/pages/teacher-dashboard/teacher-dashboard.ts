@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
 import { SchoolClass } from '../../models/class';
@@ -8,12 +8,12 @@ import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
 
 @Component({
-  selector: 'app-teacher-dashboard',
-  imports: [ReactiveFormsModule, AppShell],
+  selector: 'app-teacher-classes',
+  imports: [ReactiveFormsModule, RouterLink, AppShell],
   templateUrl: './teacher-dashboard.html',
   styleUrl: './teacher-dashboard.css',
 })
-export class TeacherDashboard implements OnInit {
+export class TeacherClasses implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly classService = inject(ClassService);
   private readonly formBuilder = inject(FormBuilder);
