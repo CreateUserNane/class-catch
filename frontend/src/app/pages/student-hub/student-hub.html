@@ -1,0 +1,106 @@
+<app-shell role="student">
+  <div header class="shell-crumbs">
+    <a class="shell-crumb-link" routerLink="/dashboard/student">Dashboard</a>
+    <span class="shell-crumb-sep">/</span>
+    <span class="shell-crumb-current">{{ title() }}</span>
+  </div>
+
+  <div class="page student-hub-page">
+    <header class="hub-heading">
+      <div>
+        <p class="hub-eyebrow">STUDENT WORKSPACE</p>
+        <h1>{{ title() }}</h1>
+        <p class="muted">{{ description() }}</p>
+      </div>
+      @if (page() === 'lessons') {
+        <a class="btn btn-outline" routerLink="/dashboard/student/saved">
+          <span class="material-symbols-outlined">bookmark</span> Saved Lessons
+        </a>
+      }
+    </header>
+
+    @if (error()) {
+      <div class="alert alert-error"><span class="material-symbols-outlined">error</span>{{ error() }}</div>
+    }
+
+    @if (loading()) {
+      <div class="card empty"><span class="spinner"></span><span>Loading…</span></div>
+    } @else if (page() === 'requests') {
+      <section class="hub-section">
+        <div class="hub-section-heading">
+          <div><p class="hub-eyebrow">CLASS ACCESS</p><h2>Join requests</h2></div>
+          <span class="badge badge-gray">{{ pendingClasses().length }} Pending</span>
+        </div>
+        @if (pendingClasses().length === 0) {
+          <div class="card hub-empty"><span class="material-symbols-outlined">task_alt</span><strong>No class requests pending</strong><span>Your class join status will show here.</span></div>
+        } @else {
+          <div class="hub-list">
+            @for (schoolClass of pendingClasses(); track schoolClass.id) {
+              <article class="card hub-row">
+                <span class="hub-row-icon material-symbols-outlined">school</span>
+                <div class="hub-row-copy"><h3>{{ schoolClass.name }}</h3><span>{{ schoolClass.teacher?.name ?? 'Your teacher' }}</span></div>
+                <span class="badge badge-amber"><span class="material-symbols-outlined">schedule</span> Pending</span>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="hub-section">
+        <div class="hub-section-heading">
+          <div><p class="hub-eyebrow">PHOTO REVIEW</p><h2>Classroom photos</h2></div>
+          <span class="badge badge-gray">{{ pendingPhotos().length }} Pending</span>
+        </div>
+        @if (pendingPhotos().length === 0) {
+          <div class="card hub-empty"><span class="material-symbols-outlined">photo_camera</span><strong>No photos awaiting review</strong><span>Photos you upload as a class representative will appear here until the teacher reviews them.</span></div>
+        } @else {
+          <div class="hub-list">
+            @for (item of pendingPhotos(); track item.file.id) {
+              <article class="card hub-row">
+                <span class="hub-row-icon material-symbols-outlined">add_a_photo</span>
+                <div class="hub-row-copy"><h3>{{ item.lessonTitle }}</h3><span>{{ item.className }} · {{ item.file.original_name }}</span></div>
+                <span class="badge badge-amber"><span class="material-symbols-outlined">schedule</span> Pending</span>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    } @else if (visibleLessons().length === 0) {
+      <div class="card hub-empty hub-empty-large">
+        <span class="material-symbols-outlined">{{ page() === 'saved' ? 'bookmark_border' : 'auto_stories' }}</span>
+        @if (page() === 'saved') {
+          <strong>No saved lessons yet</strong><span>Save a lesson with the bookmark button and it will be listed here.</span>
+          <a class="btn btn-dark btn-sm" routerLink="/dashboard/student/lessons">Browse Lessons</a>
+        } @else {
+          <strong>No lessons available yet</strong><span>Lessons from your approved classes will appear here.</span>
+          <a class="btn btn-outline btn-sm" routerLink="/dashboard/student/classes">View My Classes</a>
+        }
+      </div>
+    } @else {
+      <div class="hub-list">
+        @for (entry of visibleLessons(); track entry.lesson.id) {
+          <article class="card hub-lesson">
+            <span class="hub-row-icon material-symbols-outlined">menu_book</span>
+            <div class="hub-row-copy">
+              <span class="hub-class-name">{{ entry.schoolClass.name }}</span>
+              <h2>{{ entry.lesson.title }}</h2>
+              <div class="hub-lesson-meta">
+                <span><span class="material-symbols-outlined">calendar_today</span>{{ entry.lesson.created_at | date: 'MMM d, y' }}</span>
+                <span class="badge" [class]="entry.lesson.summary ? 'badge-green' : 'badge-gray'">
+                  <span class="material-symbols-outlined">{{ entry.lesson.summary ? 'auto_awesome' : 'hourglass_empty' }}</span>
+                  {{ entry.lesson.summary ? 'Summary ready' : 'No summary yet' }}
+                </span>
+              </div>
+            </div>
+            <div class="hub-lesson-actions">
+              <button type="button" class="btn btn-icon btn-outline" [attr.aria-label]="savedService.isSaved(entry.lesson.id) ? 'Remove from saved lessons' : 'Save lesson'" [title]="savedService.isSaved(entry.lesson.id) ? 'Remove from saved lessons' : 'Save lesson'" (click)="toggleSaved(entry)">
+                <span class="material-symbols-outlined">{{ savedService.isSaved(entry.lesson.id) ? 'bookmark' : 'bookmark_add' }}</span>
+              </button>
+              <button type="button" class="btn btn-dark btn-sm" (click)="openLesson(entry.lesson.id)">Open Lesson<span class="material-symbols-outlined">arrow_forward</span></button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</app-shell>

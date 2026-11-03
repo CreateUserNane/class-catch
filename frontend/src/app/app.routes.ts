@@ -8,6 +8,7 @@ import { StudentClasses } from './pages/student-dashboard/student-dashboard';
 import { TeacherClass } from './pages/teacher-class/teacher-class';
 import { StudentClass } from './pages/student-class/student-class';
 import { LessonPage } from './pages/lesson-page/lesson-page';
+import { StudentHub } from './pages/student-hub/student-hub';
 import { AuthGuard } from './guards/auth.guard';
 import { AnyAuthenticatedGuard } from './guards/auth.guard';
 
@@ -24,6 +25,24 @@ export const routes: Routes = [
     path: 'dashboard/teacher',
     component: TeacherDashboard,
     canActivate: [AuthGuard('teacher')],
+  },
+  {
+    path: 'dashboard/student/lessons',
+    component: StudentHub,
+    data: { studentHubPage: 'lessons' },
+    canActivate: [AuthGuard('student')],
+  },
+  {
+    path: 'dashboard/student/requests',
+    component: StudentHub,
+    data: { studentHubPage: 'requests' },
+    canActivate: [AuthGuard('student')],
+  },
+  {
+    path: 'dashboard/student/saved',
+    component: StudentHub,
+    data: { studentHubPage: 'saved' },
+    canActivate: [AuthGuard('student')],
   },
   {
     path: 'dashboard/student/classes',

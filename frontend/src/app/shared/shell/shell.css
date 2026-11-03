@@ -307,6 +307,12 @@
     box-shadow: 0 -6px 20px rgba(17, 24, 39, .06);
   }
 
+  .mobile-bottom-nav.student-nav {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
   .mobile-nav-item {
     display: flex;
     align-items: center;
@@ -319,11 +325,16 @@
     border-radius: 10px;
     background: transparent;
     color: var(--shell-muted);
-    font: 500 .68rem 'Inter', sans-serif;
+    font: 500 .66rem 'Inter', sans-serif;
     text-decoration: none;
     cursor: pointer;
     appearance: none;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .student-nav .mobile-nav-item {
+    gap: 2px;
+    font-size: .61rem;
   }
 
   .mobile-nav-item .material-symbols-outlined {

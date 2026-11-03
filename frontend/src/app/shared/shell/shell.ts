@@ -46,7 +46,22 @@ export class AppShell {
   protected isClassesActive(): boolean {
     const url = this.normalizedPath();
     const classDetailPrefix = this.role() === 'teacher' ? '/classes/' : '/student/classes/';
-    return url.startsWith(this.classesLink()) || url.startsWith(classDetailPrefix) || url.startsWith('/lessons/');
+    return url.startsWith(this.classesLink()) || url.startsWith(classDetailPrefix) ||
+      (this.role() === 'teacher' && url.startsWith('/lessons/'));
+  }
+
+  protected isLessonsActive(): boolean {
+    const url = this.normalizedPath();
+    return this.role() === 'student' &&
+      (url.startsWith('/dashboard/student/lessons') || url.startsWith('/lessons/'));
+  }
+
+  protected isPendingActive(): boolean {
+    return this.normalizedPath().startsWith('/dashboard/student/requests');
+  }
+
+  protected isSavedActive(): boolean {
+    return this.normalizedPath().startsWith('/dashboard/student/saved');
   }
 
   private normalizedPath(): string {

@@ -18,6 +18,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Teacher and student **Dashboards** are separate overview pages with role-specific counts and recent lessons.
 - **My Classes** is a separate page for the full class list and class actions.
 - Class detail pages link back to My Classes.
+- Student navigation includes **Lessons**, **Pending Requests**, and **Saved Lessons**. The lessons library lists lessons across approved classes; pending requests shows class join and photo review status; saved lessons can be bookmarked and are stored per student in that browser.
 
 ## Classroom photos and AI
 
