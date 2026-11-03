@@ -40,3 +40,4 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Dashboard and My Classes highlights follow the current page, including class detail and lesson pages.
 - Breadcrumbs and top bar styling are shared across pages, with matching navigation colors and icon sizing.
 - A custom layered ClassCatch book mark is used in the app sidebar, authentication pages, and browser tab icon.
+- Select dashboard statistics, teacher join-request alerts, and class cards use the same layered torn-paper treatment as the login and registration cards.

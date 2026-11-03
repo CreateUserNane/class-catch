@@ -9,9 +9,9 @@
     @if (error()) { <div class="alert alert-error"><span class="material-symbols-outlined">error</span>{{ error() }}</div> }
 
     <section class="overview-stats" aria-label="Your learning overview">
-      <article class="overview-stat"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ approvedCount() }}</strong><span>Enrolled classes</span></div></article>
-      <article class="overview-stat"><span class="stat-icon pending"><span class="material-symbols-outlined">hourglass_top</span></span><div><strong>{{ pendingCount() }}</strong><span>Requests pending</span></div></article>
-      <article class="overview-stat"><span class="stat-icon lessons"><span class="material-symbols-outlined">menu_book</span></span><div><strong>{{ totalLessonCount() }}</strong><span>Available lessons</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ approvedCount() }}</strong><span>Enrolled classes</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon pending"><span class="material-symbols-outlined">hourglass_top</span></span><div><strong>{{ pendingCount() }}</strong><span>Requests pending</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon lessons"><span class="material-symbols-outlined">menu_book</span></span><div><strong>{{ totalLessonCount() }}</strong><span>Available lessons</span></div></article>
     </section>
 
     <section class="overview-section">

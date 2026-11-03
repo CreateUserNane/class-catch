@@ -9,13 +9,13 @@
     @if (error()) { <div class="alert alert-error"><span class="material-symbols-outlined">error</span>{{ error() }}</div> }
 
     <section class="overview-stats" aria-label="Teaching overview">
-      <article class="overview-stat"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ classes().length }}</strong><span>Classes</span></div></article>
-      <article class="overview-stat"><span class="stat-icon lessons"><span class="material-symbols-outlined">groups</span></span><div><strong>{{ studentCount() }}</strong><span>Enrolled students</span></div></article>
-      <article class="overview-stat"><span class="stat-icon pending"><span class="material-symbols-outlined">how_to_reg</span></span><div><strong>{{ pendingCount() }}</strong><span>Join requests</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon"><span class="material-symbols-outlined">school</span></span><div><strong>{{ classes().length }}</strong><span>Classes</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon lessons"><span class="material-symbols-outlined">groups</span></span><div><strong>{{ studentCount() }}</strong><span>Enrolled students</span></div></article>
+      <article class="overview-stat paper-card"><span class="stat-icon pending"><span class="material-symbols-outlined">how_to_reg</span></span><div><strong>{{ pendingCount() }}</strong><span>Join requests</span></div></article>
     </section>
 
     @if (pendingCount() > 0) {
-      <a class="attention-card" routerLink="/dashboard/teacher/classes"><span class="material-symbols-outlined">notifications_active</span><span><strong>{{ pendingCount() }} student request{{ pendingCount() === 1 ? '' : 's' }} waiting</strong><small>Open a class to review its join requests.</small></span><span class="material-symbols-outlined arrow">arrow_forward</span></a>
+      <a class="attention-card paper-card" routerLink="/dashboard/teacher/classes"><span class="material-symbols-outlined">notifications_active</span><span><strong>{{ pendingCount() }} student request{{ pendingCount() === 1 ? '' : 's' }} waiting</strong><small>Open a class to review its join requests.</small></span><span class="material-symbols-outlined arrow">arrow_forward</span></a>
     }
 
     <section class="overview-section">
