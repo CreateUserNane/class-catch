@@ -1,0 +1,278 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { ClassService } from '../../services/class.service';
+import { AiSummary } from '../../models/ai-summary';
+import { Lesson } from '../../models/lesson';
+import { LessonFile } from '../../models/lesson-file';
+import { AppShell } from '../../shared/shell/shell';
+import { FileSizePipe } from '../../shared/pipes/file-size';
+import { MarkdownPipe } from '../../shared/pipes/markdown';
+import { ToastService } from '../../shared/toast/toast.service';
+import { UploadPhotoModal } from '../../shared/upload-photo-modal/upload-photo-modal';
+
+@Component({
+  selector: 'app-lesson-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, AppShell, FileSizePipe, MarkdownPipe, UploadPhotoModal],
+  templateUrl: './lesson-page.html',
+  styleUrl: './lesson-page.css',
+})
+export class LessonPage implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly classService = inject(ClassService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
+
+  protected readonly user = this.authService.user;
+
+  protected readonly lesson = signal<Lesson | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly errorMessage = signal('');
+
+  protected readonly generatingSummary = signal(false);
+  protected readonly summaryError = signal('');
+
+  protected readonly explanations = signal<Record<number, AiSummary>>({});
+  protected readonly generatingExplanationId = signal<number | null>(null);
+  protected readonly explanationErrorId = signal<number | null>(null);
+
+  protected readonly uploadModalOpen = signal(false);
+
+  protected readonly shellRole = computed(() => this.user()?.role ?? 'student');
+
+  protected readonly className = computed(() => this.lesson()?.school_class?.name ?? '');
+  protected readonly teacher = computed(() => this.lesson()?.teacher ?? null);
+  protected readonly description = computed(() => this.lesson()?.description ?? '');
+  protected readonly lessonTitle = computed(() => this.lesson()?.title ?? '');
+  protected readonly createdAt = computed(() => this.lesson()?.created_at ?? '');
+  protected readonly summary = computed(() => this.lesson()?.summary ?? null);
+
+  protected readonly materials = computed(() =>
+    (this.lesson()?.files ?? []).filter((file) => file.type === 'material'),
+  );
+  protected readonly photos = computed(() =>
+    (this.lesson()?.files ?? []).filter((file) => file.type === 'photo'),
+  );
+
+  protected readonly canGenerateSummary = computed(() => {
+    const lesson = this.lesson();
+    const user = this.user();
+
+    return !!lesson && !!user && user.role === 'teacher' && lesson.teacher_id === user.id;
+  });
+
+  protected readonly canUploadPhoto = computed(() => {
+    const lesson = this.lesson();
+    const user = this.user();
+
+    if (!lesson || !user || user.role !== 'student') {
+      return false;
+    }
+
+    return lesson.school_class?.representative_id === user.id;
+  });
+
+  protected readonly canGenerateExplanation = computed(() => {
+    const lesson = this.lesson();
+    const user = this.user();
+
+    if (!lesson || !user) {
+      return false;
+    }
+
+    const isTeacher = user.role === 'teacher' && lesson.teacher_id === user.id;
+    const isRepresentative = user.role === 'student' && lesson.school_class?.representative_id === user.id;
+
+    return isTeacher || isRepresentative;
+  });
+
+  protected readonly lessonId = computed(() => this.lesson()?.id ?? null);
+
+  ngOnInit(): void {
+    const subscription = this.route.paramMap.subscribe((params) => {
+      const id = Number(params.get('id'));
+
+      if (id) {
+        this.loadLesson(id);
+      }
+    });
+
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
+
+  protected backToClass(): void {
+    const lesson = this.lesson();
+    const role = this.user()?.role;
+
+    if (lesson?.school_class) {
+      const classId = lesson.school_class.id;
+
+      if (classId) {
+        this.router.navigate(role === 'teacher' ? ['/classes', classId] : ['/student/classes', classId]);
+        return;
+      }
+    }
+
+    this.router.navigate(['/dashboard/teacher']);
+  }
+
+  protected backToClassLink(): string[] {
+    const lesson = this.lesson();
+    const classId = lesson?.school_class?.id;
+
+    if (classId && this.user()?.role === 'teacher') {
+      return ['/classes', String(classId)];
+    }
+
+    if (classId) {
+      return ['/student/classes', String(classId)];
+    }
+
+    return ['/dashboard/teacher'];
+  }
+
+  protected formatDate(value: string | null | undefined): string {
+    if (!value) {
+      return '—';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '—';
+    }
+
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  protected materialIcon(name: string): string {
+    const lower = name.toLowerCase();
+
+    if (lower.endsWith('.pdf')) {
+      return 'picture_as_pdf';
+    }
+
+    if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) {
+      return 'slideshow';
+    }
+
+    if (lower.endsWith('.doc') || lower.endsWith('.docx')) {
+      return 'description';
+    }
+
+    return 'insert_drive_file';
+  }
+
+  protected generateSummary(): void {
+    const lessonId = this.lessonId();
+
+    if (!lessonId) {
+      return;
+    }
+
+    this.generatingSummary.set(true);
+    this.summaryError.set('');
+
+    this.classService.generateSummary(lessonId).subscribe({
+      next: (summary) => {
+        this.generatingSummary.set(false);
+        this.lesson.update((current) => (current ? { ...current, summary } : current));
+        this.toast.show('AI lesson summary generated successfully.');
+      },
+      error: (error) => {
+        this.generatingSummary.set(false);
+        this.summaryError.set(error?.error?.message || 'Could not generate the lesson summary.');
+      },
+    });
+  }
+
+  protected generateExplanation(file: LessonFile): void {
+    const fileId = file.id;
+
+    if (this.generatingExplanationId() === fileId) {
+      return;
+    }
+
+    this.generatingExplanationId.set(fileId);
+    this.explanationErrorId.set(null);
+
+    this.classService.generateExplanation(fileId).subscribe({
+      next: (explanation) => {
+        this.explanations.update((current) => ({ ...current, [fileId]: explanation }));
+        this.generatingExplanationId.set(null);
+        this.toast.show('AI explanation generated successfully.');
+      },
+      error: (error) => {
+        this.generatingExplanationId.set(null);
+        this.explanationErrorId.set(fileId);
+        console.error('[LessonPage] explanation error', error);
+      },
+    });
+  }
+
+  protected explanationFor(file: LessonFile): AiSummary | null {
+    return this.explanations()[file.id] ?? null;
+  }
+
+  protected openFile(url: string | undefined): void {
+    if (!url) {
+      return;
+    }
+
+    window.open(url, '_blank');
+  }
+
+  protected openUploadModal(): void {
+    this.uploadModalOpen.set(true);
+  }
+
+  protected closeUploadModal(): void {
+    this.uploadModalOpen.set(false);
+  }
+
+  protected onPhotoUploaded(): void {
+    this.uploadModalOpen.set(false);
+
+    const lessonId = this.lessonId();
+
+    if (lessonId) {
+      this.loadLesson(lessonId);
+    }
+  }
+
+  private loadLesson(lessonId: number): void {
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    this.classService.getLesson(lessonId).subscribe({
+      next: (lesson) => {
+        this.lesson.set(lesson);
+        this.loading.set(false);
+
+        this.loadExplanations(lesson);
+      },
+      error: (error) => {
+        this.loading.set(false);
+        this.errorMessage.set(error?.error?.message || 'Could not load this lesson.');
+      },
+    });
+  }
+
+  private loadExplanations(lesson: Lesson): void {
+    const photoFiles = (lesson.files ?? []).filter((file) => file.type === 'photo');
+
+    photoFiles.forEach((file) => {
+      this.classService.getExplanation(file.id).subscribe({
+        next: (explanation) => {
+          this.explanations.update((current) => ({ ...current, [file.id]: explanation }));
+        },
+        error: () => {
+          // No explanation yet — the teacher or representative can generate one.
+        },
+      });
+    });
+  }
+}

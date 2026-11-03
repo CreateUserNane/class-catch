@@ -1,0 +1,173 @@
+<section class="auth-page">
+  <div class="particles" aria-hidden="true">
+    <span class="particle" style="left: 7%; top: 20%; --particle-duration: 21s; --particle-delay: 0s;">
+      <span class="material-symbols-outlined">school</span>
+    </span>
+    <span class="particle" style="left: 14%; top: 66%; --particle-duration: 25s; --particle-delay: 2s;">
+      <span class="material-symbols-outlined">photo_camera</span>
+    </span>
+    <span class="particle" style="left: 22%; top: 10%; --particle-duration: 19s; --particle-delay: 4s;">
+      <span class="material-symbols-outlined">menu_book</span>
+    </span>
+    <span class="particle" style="left: 30%; top: 72%; --particle-duration: 23s; --particle-delay: 6s;">
+      <span class="material-symbols-outlined">cloud_upload</span>
+    </span>
+    <span class="particle" style="left: 38%; top: 28%; --particle-duration: 20s; --particle-delay: 1s;">
+      <span class="material-symbols-outlined">add_a_photo</span>
+    </span>
+    <span class="particle" style="left: 46%; top: 76%; --particle-duration: 22s; --particle-delay: 3s;">
+      <span class="material-symbols-outlined">schedule</span>
+    </span>
+    <span class="particle" style="left: 54%; top: 12%; --particle-duration: 18s; --particle-delay: 5s;">
+      <span class="material-symbols-outlined">auto_awesome</span>
+    </span>
+    <span class="particle" style="left: 62%; top: 64%; --particle-duration: 24s; --particle-delay: 7s;">
+      <span class="material-symbols-outlined">group</span>
+    </span>
+    <span class="particle" style="left: 70%; top: 22%; --particle-duration: 21s; --particle-delay: 2.5s;">
+      <span class="material-symbols-outlined">person_check</span>
+    </span>
+    <span class="particle" style="left: 78%; top: 54%; --particle-duration: 23s; --particle-delay: 4.5s;">
+      <span class="material-symbols-outlined">grid_view</span>
+    </span>
+    <span class="particle" style="left: 86%; top: 8%; --particle-duration: 19s; --particle-delay: 1.5s;">
+      <span class="material-symbols-outlined">folder</span>
+    </span>
+    <span class="particle" style="left: 92%; top: 70%; --particle-duration: 25s; --particle-delay: 6.5s;">
+      <span class="material-symbols-outlined">photo_library</span>
+    </span>
+    <span class="particle" style="left: 8%; top: 44%; --particle-duration: 22s; --particle-delay: 1s;">
+      <span class="material-symbols-outlined">draw</span>
+    </span>
+    <span class="particle" style="left: 16%; top: 88%; --particle-duration: 24s; --particle-delay: 3s;">
+      <span class="material-symbols-outlined">description</span>
+    </span>
+    <span class="particle" style="left: 24%; top: 46%; --particle-duration: 20s; --particle-delay: 5s;">
+      <span class="material-symbols-outlined">bookmark</span>
+    </span>
+    <span class="particle" style="left: 32%; top: 6%; --particle-duration: 23s; --particle-delay: 7s;">
+      <span class="material-symbols-outlined">lightbulb</span>
+    </span>
+    <span class="particle" style="left: 40%; top: 56%; --particle-duration: 21s; --particle-delay: 2s;">
+      <span class="material-symbols-outlined">edit_note</span>
+    </span>
+    <span class="particle" style="left: 48%; top: 2%; --particle-duration: 25s; --particle-delay: 4s;">
+      <span class="material-symbols-outlined">quiz</span>
+    </span>
+    <span class="particle" style="left: 56%; top: 44%; --particle-duration: 19s; --particle-delay: 6s;">
+      <span class="material-symbols-outlined">workspace_premium</span>
+    </span>
+    <span class="particle" style="left: 64%; top: 88%; --particle-duration: 22s; --particle-delay: 1.5s;">
+      <span class="material-symbols-outlined">task_alt</span>
+    </span>
+    <span class="particle" style="left: 72%; top: 40%; --particle-duration: 24s; --particle-delay: 3.5s;">
+      <span class="material-symbols-outlined">sticky_note_2</span>
+    </span>
+    <span class="particle" style="left: 80%; top: 90%; --particle-duration: 20s; --particle-delay: 5.5s;">
+      <span class="material-symbols-outlined">cast_for_education</span>
+    </span>
+    <span class="particle" style="left: 88%; top: 44%; --particle-duration: 23s; --particle-delay: 2.5s;">
+      <span class="material-symbols-outlined">school</span>
+    </span>
+    <span class="particle" style="left: 96%; top: 28%; --particle-duration: 21s; --particle-delay: 4.5s;">
+      <span class="material-symbols-outlined">collections_bookmark</span>
+    </span>
+  </div>
+
+  <div class="auth-card">
+    <p class="auth-eyebrow">ClassCatch · Your learning space</p>
+    <h1>Register</h1>
+    <p class="auth-subtitle">Create your ClassCatch account.</p>
+
+    @if (errorMessage()) {
+      <p class="auth-error">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="name">Name</label>
+      <div class="input-icon-field">
+        <span class="material-symbols-outlined field-icon" aria-hidden="true">person</span>
+        <input id="name" type="text" formControlName="name" autocomplete="name" />
+      </div>
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <p class="field-error">Name is required.</p>
+      }
+
+      <label for="email">Email</label>
+      <div class="input-icon-field">
+        <span class="material-symbols-outlined field-icon" aria-hidden="true">mail</span>
+        <input id="email" type="email" formControlName="email" autocomplete="email" />
+      </div>
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="field-error">Enter a valid email address.</p>
+      }
+
+      <label for="role">Role</label>
+      <div class="input-icon-field">
+        <span class="material-symbols-outlined field-icon" aria-hidden="true">school</span>
+        <select id="role" formControlName="role">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+
+      <label for="password">Password</label>
+      <div class="password-field">
+        <span class="material-symbols-outlined field-icon" aria-hidden="true">lock</span>
+        <input
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="showPassword()"
+        >
+          <span class="material-symbols-outlined">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
+      </div>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="field-error">Password must be at least 8 characters.</p>
+      }
+
+      <label for="password_confirmation">Confirm password</label>
+      <div class="password-field">
+        <span class="material-symbols-outlined field-icon" aria-hidden="true">verified_user</span>
+        <input
+          id="password_confirmation"
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+          formControlName="password_confirmation"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="toggleConfirmPasswordVisibility()"
+          [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="showConfirmPassword()"
+        >
+          <span class="material-symbols-outlined">{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
+      </div>
+      @if (form.controls.password_confirmation.touched && form.controls.password_confirmation.invalid) {
+        <p class="field-error">Please confirm your password.</p>
+      }
+      @if (form.hasError('passwordMismatch') && form.controls.password_confirmation.touched) {
+        <p class="field-error">Passwords do not match.</p>
+      }
+
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Creating account...' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="auth-link">
+      Already have an account?
+      <a routerLink="/login">Log in</a>
+    </p>
+  </div>
+</section>

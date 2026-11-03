@@ -1,0 +1,62 @@
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <a class="brand" [routerLink]="dashboardLink()">
+      <span class="brand-mark">CC</span>
+      <span class="brand-name">ClassCatch</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a
+        class="nav-item"
+        [routerLink]="dashboardLink()"
+        [class.active]="isDashboardActive()"
+        [attr.aria-current]="isDashboardActive() ? 'page' : null"
+      >
+        <span class="material-symbols-outlined">grid_view</span>
+        <span>Dashboard</span>
+      </a>
+      <a
+        class="nav-item"
+        [routerLink]="lessonsLink()"
+        [class.active]="isClassesActive()"
+        [attr.aria-current]="isClassesActive() ? 'page' : null"
+      >
+        <span class="material-symbols-outlined">folder</span>
+        <span>My Classes</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sidebar-bottom">
+    <button type="button" class="nav-item logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>
+
+<div class="shell-main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <ng-content select="[header]" />
+    </div>
+
+    <div class="topbar-right">
+      <span class="workspace-pill">
+        <span class="dot"></span>
+        {{ role() === 'teacher' ? 'Teacher Workspace' : 'Student Workspace' }}
+      </span>
+      <div class="topbar-user">
+        <span class="avatar">{{ user()?.name | initials }}</span>
+        <div class="topbar-user-meta">
+          <span class="name">{{ user()?.name }}</span>
+          <span class="role">{{ role() === 'teacher' ? 'Teacher' : 'Student' }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell-content">
+    <ng-content />
+  </main>
+</div>

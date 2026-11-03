@@ -1,0 +1,95 @@
+@if (open()) {
+  <div class="modal-overlay" (click)="close()">
+    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="upload-photo-title" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="stack-sm">
+          <h3 class="modal-title" id="upload-photo-title" style="display: flex; align-items: center; gap: 8px">
+            <span class="material-symbols-outlined" style="color: #4f46e5">add_a_photo</span>
+            Upload Classroom Photo
+          </h3>
+          <p class="tiny muted">{{ lessonTitle() }}</p>
+        </div>
+        <button type="button" class="modal-close" (click)="close()" aria-label="Close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <span class="material-symbols-outlined">verified_user</span>
+          <span>As the assigned Student Representative, photos you upload are processed by ClassCatch AI to build catch-up notes and explanations for your classmates.</span>
+        </div>
+
+        @if (lessons().length > 1) {
+          <div class="field">
+            <label for="photo-lesson">Lesson</label>
+            <select id="photo-lesson" class="select" [ngModel]="lessonId()" (ngModelChange)="lessonId.set($event)">
+              @for (lesson of lessons(); track lesson.id) {
+                <option [ngValue]="lesson.id">{{ lesson.title }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <div
+          class="dropzone"
+          role="button"
+          tabindex="0"
+          (click)="fileInput.click()"
+          (keydown.enter)="fileInput.click()"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+        >
+          <input #fileInput type="file" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onFileInput($event)" />
+          <span class="dropzone-icon material-symbols-outlined">cloud_upload</span>
+          <p class="dropzone-title"><span>Click to browse</span> or drag &amp; drop board photos</p>
+          <p class="tiny muted">Supported formats: JPG, JPEG, PNG, WEBP (up to 5 MB)</p>
+        </div>
+
+        @if (selectedFile(); as file) {
+          <div class="file-row">
+            <div class="preview-thumb">
+              @if (previewUrl()) {
+                <img [src]="previewUrl()" alt="Selected board photo preview" />
+              }
+            </div>
+            <div class="grow stack-sm" style="gap: 2px">
+              <span class="small truncate" style="font-weight: 600">{{ file.name }}</span>
+              <span class="tiny" style="color: #059669">
+                <span class="dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; margin-right: 5px"></span>
+                Ready for AI analysis ({{ file.size | fileSize }})
+              </span>
+            </div>
+            <div class="row" style="gap: 4px">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="fileInput.click()">Replace</button>
+              <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="removeFile()" title="Remove photo" aria-label="Remove photo">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        }
+
+        <div class="guidelines">
+          <span class="material-symbols-outlined">gavel</span>
+          <p><strong>Upload guidelines:</strong> Only clear whiteboard, chalkboard or lecture projection photos are permitted. Non-course images will be flagged.</p>
+        </div>
+
+        @if (error()) {
+          <div class="alert alert-error">
+            <span class="material-symbols-outlined">error</span>
+            <span>{{ error() }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+        <button type="button" class="btn btn-indigo" [disabled]="uploading() || !selectedFile() || !lessonId()" (click)="upload()">
+          @if (uploading()) {
+            <span class="spinner light"></span> Uploading…
+          } @else {
+            <span class="material-symbols-outlined">upload</span> Upload Photo
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

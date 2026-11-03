@@ -1,0 +1,423 @@
+<app-shell role="teacher">
+  <div header class="crumb-row">
+    <span class="crumb">My Classes</span>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-current">{{ className() }}</span>
+  </div>
+
+  @if (loading()) {
+    <div class="page page-narrow">
+      <div class="card empty">
+        <span class="spinner"></span>
+        <span>Loading class…</span>
+      </div>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="page page-narrow">
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="page page-narrow">
+      <a routerLink="/dashboard/teacher" class="back-link">Back to All Classes</a>
+
+      <section class="card card-pad class-hero">
+        <div class="hero-head">
+          <div class="stack-sm">
+            <h1 class="class-title">{{ className() }}</h1>
+            <div class="row wrap class-meta">
+              <button type="button" class="code-chip mono" (click)="copyCode(classCode())" title="Click to copy class code">
+                <span>{{ classCode() }}</span>
+                <span class="material-symbols-outlined">content_copy</span>
+              </button>
+              <span class="section-meta muted small">Instructor: {{ teacherName() }}</span>
+              <span class="dot">·</span>
+              <span class="strong small">{{ studentCount() }} Enrolled Students</span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-dark" (click)="openLessonModalCreate()">
+            <span class="material-symbols-outlined">add</span>
+            Create Lesson
+          </button>
+        </div>
+
+        <div class="rep-bar">
+          <div class="row">
+            <span class="material-symbols-outlined">verified_user</span>
+            <span class="muted small">Student Representative:</span>
+            <span class="strong small">{{ representative()?.name ?? 'None assigned yet' }}</span>
+          </div>
+          @if (representative()) {
+            <button type="button" class="btn btn-soft btn-sm" (click)="changeRepresentative()">
+              <span class="material-symbols-outlined">swap_horiz</span>
+              Change Representative
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="tabs-section">
+        <div class="tabs">
+          <button
+            type="button"
+            class="tab"
+            [class.active]="activeTab() === 'lessons'"
+            (click)="setActiveTab('lessons')"
+          >
+            <span class="material-symbols-outlined">menu_book</span>
+            Lessons
+            <span class="count">{{ lessons().length }}</span>
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="activeTab() === 'students'"
+            (click)="setActiveTab('students')"
+          >
+            <span class="material-symbols-outlined">group</span>
+            Enrolled Students
+            <span class="count">{{ studentCount() }}</span>
+          </button>
+        </div>
+
+        @if (activeTab() === 'lessons') {
+          <div class="lessons-pane stack">
+            @if (lessons().length === 0) {
+              <div class="card empty">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>No lessons yet.</span>
+              </div>
+            }
+            @for (view of lessons(); track view.lesson.id; let i = $index) {
+              <article class="card lesson-card">
+                <div class="lesson-card-head">
+                  <div class="row wrap">
+                    <h3 class="lesson-title">{{ view.lesson.title }}</h3>
+                    @if (i === 0) {
+                      <span class="badge badge-green">Active</span>
+                    } @else {
+                      <span class="badge badge-gray">Completed</span>
+                    }
+                  </div>
+
+                  <div class="row lesson-actions">
+                    <button type="button" class="btn btn-dark btn-sm" (click)="viewLesson(view.lesson.id)">
+                      <span class="material-symbols-outlined">visibility</span>
+                      View Lesson
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="openLessonModalEdit(view)">
+                      <span class="material-symbols-outlined">edit</span>
+                      Edit Lesson
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="openDeleteModal(view)" title="Delete Lesson">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="lesson-files stack-sm">
+                  @if (view.materials.length > 0) {
+                    <div class="row wrap file-row-strip">
+                      @for (file of view.materials; track file.id) {
+                        <span class="file-chip">
+                          <span class="material-symbols-outlined">{{ materialIcon(file.original_name) }}</span>
+                          {{ file.original_name }}
+                          <button type="button" class="link-btn" (click)="openFileUrl(file.url)">View</button>
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="file-chip muted">No materials uploaded yet</span>
+                  }
+
+                  <span class="file-chip">
+                    <span class="material-symbols-outlined">photo_camera</span>
+                    {{ view.photos.length }} Whiteboard Photo(s)
+                  </span>
+
+                  @if (view.lesson.summary) {
+                    <span class="badge badge-indigo">
+                      <span class="material-symbols-outlined">auto_awesome</span> Summary ready
+                    </span>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="students-pane stack">
+            <div class="roster-info card card-pad-sm">
+              <span class="muted small">Students enroll using class code <strong class="mono strong">{{ classCode() }}</strong>. One student can be assigned as representative to upload classroom whiteboard photos.</span>
+            </div>
+
+            <div class="rep-spotlight card card-pad">
+              <div class="row">
+                <span class="avatar lg">{{ (representative()?.name ?? '–') | initials }}</span>
+                <div class="stack-sm" style="gap: 2px">
+                  <div class="row">
+                    <span class="strong">{{ representative()?.name ?? 'None assigned yet' }}</span>
+                    @if (representative()) {
+                      <span class="badge badge-indigo">
+                        <span class="material-symbols-outlined">photo_camera</span>
+                        Active Representative
+                      </span>
+                    }
+                  </div>
+                  <p class="tiny muted">{{ representative()?.email ?? '' }}</p>
+                  <p class="tiny muted">
+                    Assigned as the student who captures and uploads whiteboard notes for peer catch-up.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" (click)="changeRepresentative()">
+                  Change Representative
+                </button>
+              </div>
+            </div>
+
+            <div class="roster-card card">
+              <div class="card-pad-sm">
+                <div class="row-between">
+                  <h3 class="roster-title">Enrolled Students Roster</h3>
+                  <div class="search-wrap">
+                    <input
+                      type="text"
+                      class="input"
+                      placeholder="Search student..."
+                      [value]="searchTerm()"
+                      (input)="searchTerm.set($any($event.target).value)"
+                    />
+                    <span class="material-symbols-outlined search-icon">search</span>
+                  </div>
+                </div>
+
+                <table class="table" id="roster">
+                  <thead>
+                    <tr>
+                      <th class="strong small">Student Name</th>
+                      <th class="strong small">Email</th>
+                      <th class="strong small">Role</th>
+                      <th class="strong small text-right" style="width: 140px">Representative Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (student of filteredStudents(); track student.id) {
+                      <tr>
+                        <td>
+                          <div class="row">
+                            <span class="avatar soft">{{ student.name | initials }}</span>
+                            <span class="strong">{{ student.name }}</span>
+                          </div>
+                        </td>
+                        <td class="mono small">{{ student.email }}</td>
+                        <td>
+                          <span class="badge" [class]="representative()?.id === student.id ? 'badge-indigo' : 'badge-gray'" style="text-transform: capitalize">
+                            @if (representative()?.id === student.id) {
+                              <span class="material-symbols-outlined">photo_camera</span>Student Representative
+                            } @else {
+                              <span class="material-symbols-outlined">person</span>Student
+                            }
+                          </span>
+                        </td>
+                        <td class="cell-actions">
+                          @if (representative()?.id === student.id) {
+                            <span class="badge badge-gray">Current Rep</span>
+                          } @else {
+                            <button type="button" class="btn btn-soft btn-sm" (click)="openAssignModal(student)">
+                              <span class="material-symbols-outlined">person_check</span>
+                              Assign as Representative
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    }
+                    @if (filteredStudents().length === 0) {
+                      <tr>
+                        <td colspan="4" class="empty-state-td">No students found.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Lesson Create / Edit Modal -->
+      @if (lessonModalOpen()) {
+        <div class="modal-overlay" (click)="closeLessonModal()">
+          <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lesson-modal-title" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3 class="modal-title" id="lesson-modal-title">{{ editingLessonId() ? 'Edit Lesson' : 'Create New Lesson' }}</h3>
+              <button type="button" class="modal-close" (click)="closeLessonModal()" aria-label="Close">×</button>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="submitLesson()" novalidate>
+              <div class="modal-body stack">
+                <div class="field">
+                  <label for="lessonTitle">Lesson Title <span class="tiny danger">*</span></label>
+                  <input id="lessonTitle" class="input" type="text" formControlName="title" placeholder="e.g. Lesson 5: Magnetic Induction" />
+                  @if (form.controls.title.touched && form.controls.title.invalid) {
+                    <span class="field-error">Lesson title is required.</span>
+                  }
+                </div>
+
+                <div class="field">
+                  <label for="lessonDescription">Short Description (Optional)</label>
+                  <textarea id="lessonDescription" class="textarea" formControlName="description" rows="2" placeholder="Key learning objectives or agenda..."></textarea>
+                </div>
+
+                <div class="field stack-sm">
+                  <label class="field-label">Lesson Materials</label>
+                  <div class="dropzone">
+                    <input
+                      type="file"
+                      class="hidden"
+                      id="materialFile"
+                      accept=".pdf,.ppt,.pptx,.doc,.docx"
+                      (change)="onSelectMaterialFile($event)"
+                    />
+                    <button type="button" class="dropzone-btn" (click)="openMaterialFileInput()">
+                      <span class="material-symbols-outlined">cloud_upload</span>
+                      <span>Upload PowerPoint or PDF</span>
+                      <span class="tiny muted">Drag &amp; drop or click to browse</span>
+                    </button>
+                  </div>
+                </div>
+
+                @if (selectedMaterialFile(); as staged) {
+                  <div class="file-row">
+                    <div class="grow row">
+                      <span class="material-symbols-outlined">{{ materialIcon(staged.name) }}</span>
+                      <span class="truncate strong">{{ staged.name }}</span>
+                      <span class="tiny muted">{{ staged.size | fileSize }}</span>
+                    </div>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="selectedMaterialFile.set(null)">Remove</button>
+                  </div>
+                }
+
+                @if (lessonError()) {
+                  <div class="alert alert-error">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>{{ lessonError() }}</span>
+                  </div>
+                }
+
+                @if (uploadError()) {
+                  <div class="alert alert-error">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>{{ uploadError() }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline" (click)="closeLessonModal()">Cancel</button>
+                <button type="submit" class="btn btn-dark" [disabled]="creatingLesson()">
+                  @if (creatingLesson()) {
+                    <span class="spinner light"></span> Saving…
+                  } @else {
+                    <span class="material-symbols-outlined">check</span> Save Lesson
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- Delete Confirmation Modal -->
+      @if (deleteLessonView()) {
+        <div class="modal-overlay" (click)="closeDeleteModal()">
+          <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-lesson-title" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <div class="row">
+                <span class="delete-icon">warning</span>
+                <div>
+                  <h3 class="modal-title" id="delete-lesson-title">Delete Lesson</h3>
+                  <p class="tiny muted">Deleting a lesson removes all of its materials and classroom photos permanently.</p>
+                </div>
+              </div>
+              <button type="button" class="modal-close" (click)="closeDeleteModal()" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete <strong>{{ deleteLessonView()?.lesson.title }}</strong>?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline" (click)="closeDeleteModal()">Cancel</button>
+              <button type="button" class="btn btn-danger" [disabled]="deletingLesson()" (click)="confirmDeleteLesson()">
+                @if (deletingLesson()) { <span class="spinner light"></span> Deleting… } @else { Delete }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Assign Representative Modal -->
+      @if (assignTargetId()) {
+        <div class="modal-overlay" (click)="closeAssignModal()">
+          <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="assign-rep-title" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3 class="modal-title" id="assign-rep-title">Assign Representative</h3>
+              <button type="button" class="modal-close" (click)="closeAssignModal()" aria-label="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+              <div class="transfer">
+                <div class="side">
+                  <span class="avatar soft">{{ (schoolClass()?.representative?.name ?? '–') | initials }}</span>
+                  <div class="stack-sm" style="gap: 2px">
+                    <span class="strong small">Current Representative</span>
+                    <span class="small muted">{{ schoolClass()?.representative?.name ?? '–' }}</span>
+                  </div>
+                </div>
+                <div class="arrow">
+                  <span class="material-symbols-outlined">arrow_downward</span>
+                </div>
+                <div class="side side-selected">
+                  <span class="avatar soft">{{ (assignTarget()?.name ?? '–') | initials }}</span>
+                  <div class="stack-sm" style="gap: 2px">
+                    <span class="strong small">New Representative</span>
+                    <span class="small muted">{{ assignTarget()?.name ?? '–' }}</span>
+                    <span class="tiny muted">{{ assignTarget()?.email ?? '' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="permissions">
+                <span class="tiny muted strong" style="text-transform: uppercase; letter-spacing: 0.05em">Role Scope &amp; Access Controls</span>
+                <ul class="checklist">
+                  <li><span class="material-symbols-outlined check-icon green">check_circle</span><span>Authorized to upload &amp; annotate classroom whiteboard photos</span></li>
+                  <li><span class="material-symbols-outlined check-icon green">check_circle</span><span>Whiteboard uploads sync automatically to peer AI summaries</span></li>
+                  <li class="muted"><span class="material-symbols-outlined check-icon muted">cancel</span><span>Cannot edit or delete teacher lecture presentations or PDF files</span></li>
+                  <li class="muted"><span class="material-symbols-outlined check-icon muted">cancel</span><span>Cannot alter the class roster or manage enrolled students</span></li>
+                </ul>
+              </div>
+
+              <label class="notify-label">
+                <input type="checkbox" checked />
+                <span>Send notification email with upload guidelines and app access instructions</span>
+              </label>
+
+              @if (representativeMessage()) {
+                <div class="alert alert-error">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ representativeMessage() }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline" (click)="closeAssignModal()">Cancel</button>
+              <button type="button" class="btn btn-dark" [disabled]="assigningRepresentative()" (click)="confirmAssignment()">
+                @if (assigningRepresentative()) { <span class="spinner light"></span> Assigning… } @else { Confirm Assignment }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</app-shell>

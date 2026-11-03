@@ -1,0 +1,131 @@
+<app-shell role="teacher">
+  <div header class="crumb">Dashboard</div>
+
+  <div class="page">
+    <div class="dashboard-head">
+      <div class="stack-sm" style="gap: 2px">
+        <h1 class="welcome">Welcome back, {{ user()?.name }}</h1>
+        <p class="muted small">Manage your classes and lesson materials</p>
+      </div>
+      <button type="button" class="btn btn-dark" (click)="openCreateModal()">
+        <span class="material-symbols-outlined">add</span>
+        Create Class
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <section class="classes-section">
+      <div class="section-head">
+        <div class="row">
+          <h2 class="section-title">Your Classes</h2>
+          <span class="badge badge-gray">{{ classes().length }} Classes</span>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="card empty">
+          <span class="spinner"></span>
+          <span>Loading your classes…</span>
+        </div>
+      } @else if (classes().length === 0) {
+        <div class="card empty">
+          <span class="material-symbols-outlined">school</span>
+          <span>You have not created any classes yet.</span>
+          <button type="button" class="btn btn-dark btn-sm" (click)="openCreateModal()">Create your first class</button>
+        </div>
+      } @else {
+        <div class="class-grid">
+          @for (schoolClass of classes(); track schoolClass.id) {
+            <article class="class-card card card-hover">
+              <div class="class-card-body">
+                <div class="row-between class-card-top">
+                  <h3 class="class-name">{{ schoolClass.name }}</h3>
+                  <span class="enrolled">
+                    <span class="material-symbols-outlined">group</span>
+                    {{ schoolClass.students_count ?? 0 }} Students
+                  </span>
+                </div>
+
+                @if (schoolClass.description) {
+                  <p class="class-desc">{{ schoolClass.description }}</p>
+                } @else {
+                  <p class="class-desc muted">No description yet.</p>
+                }
+
+                <div class="code-box">
+                  <span class="code-label">Class Code</span>
+                  <button type="button" class="code-btn mono" (click)="copyCode(schoolClass.code)" title="Click to copy class code">
+                    <span>{{ schoolClass.code }}</span>
+                    <span class="material-symbols-outlined">content_copy</span>
+                  </button>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-dark btn-block" (click)="viewClass(schoolClass.id)">
+                View Class
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  @if (modalOpen()) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-class-title" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title" id="create-class-title">Create New Class</h2>
+          <button type="button" class="modal-close" (click)="closeCreateModal()" aria-label="Close">×</button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="modal-body">
+            <div class="field">
+              <label for="className">Class Name</label>
+              <input id="className" class="input" type="text" formControlName="name" placeholder="e.g. Advanced Physics 101" />
+              @if (form.controls.name.touched && form.controls.name.invalid) {
+                <span class="field-error">A class name is required.</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="classDescription">Subject / Department</label>
+              <input id="classDescription" class="input" type="text" formControlName="description" placeholder="e.g. Science & Engineering" />
+            </div>
+
+            <div class="info-box">
+              <span class="material-symbols-outlined">info</span>
+              <span>A unique class code will be automatically generated upon creation.</span>
+            </div>
+
+            @if (errorMessage()) {
+              <div class="alert alert-error">
+                <span class="material-symbols-outlined">error</span>
+                <span>{{ errorMessage() }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeCreateModal()">Cancel</button>
+            <button type="submit" class="btn btn-dark" [disabled]="creating()">
+              @if (creating()) {
+                <span class="spinner light"></span> Creating…
+              } @else {
+                <span class="material-symbols-outlined">check</span> Create Class
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</app-shell>

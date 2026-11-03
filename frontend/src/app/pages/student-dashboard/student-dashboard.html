@@ -1,0 +1,215 @@
+<app-shell role="student">
+  <div header class="crumb-row">
+    <a class="crumb-link" routerLink="/dashboard/student">Dashboard</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-current">My Classes</span>
+  </div>
+
+  <div class="page page-narrow">
+    <div class="dashboard-head">
+      <div class="stack-sm">
+        <h1 class="welcome">Welcome back, {{ user()?.name }}</h1>
+        <p class="muted small">Student catch-up workspace — join classes and view lesson notes.</p>
+      </div>
+      <button type="button" class="btn btn-dark" (click)="openJoinModal()">
+        <span class="material-symbols-outlined">add</span>
+        Join Class
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-value">{{ totalClasses() }}</span>
+        <span class="stat-label">Classes Enrolled</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ totalLessons() }}</span>
+        <span class="stat-label">Lessons Published</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ summariesReady() }}</span>
+        <span class="stat-label">AI Summaries</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ totalPhotos() }}</span>
+        <span class="stat-label">Classroom Photos</span>
+      </div>
+    </div>
+
+    <section class="classes-section stack-lg">
+      <div class="section-head">
+        <div class="row">
+          <h2 class="section-title"><span class="material-symbols-outlined">school</span> My Classes</h2>
+          <span class="badge badge-gray">{{ classes().length }} Class{{ classes().length !== 1 ? 'es' : '' }}</span>
+        </div>
+      </div>
+
+      <div class="class-grid">
+        @if (classes().length === 0) {
+          <div class="card empty">
+            <span class="material-symbols-outlined">school</span>
+            <span>You haven't joined any classes yet.</span>
+            <button type="button" class="btn btn-dark btn-sm" (click)="openJoinModal()">
+              <span class="material-symbols-outlined">add</span>
+              Join your first class
+            </button>
+          </div>
+        } @else {
+          @for (schoolClass of classes(); track schoolClass.id) {
+            <article class="card class-card card-hover">
+              <div class="class-card-body">
+                <div class="row-between">
+                  <div class="stack-sm" style="gap: 4px">
+                    <h3 class="class-name">{{ schoolClass.name }}</h3>
+                    <span class="teacher-chip muted small">
+                      <span class="material-symbols-outlined">person</span>
+                      {{ schoolClass.teacher?.name }}
+                    </span>
+                  </div>
+                  <button type="button" class="code-chip mono" (click)="copyCode(schoolClass.code)" title="Click to copy class code">
+                    <span>{{ schoolClass.code }}</span>
+                    <span class="material-symbols-outlined">content_copy</span>
+                  </button>
+                </div>
+
+                @if (schoolClass.description) {
+                  <p class="class-desc">{{ schoolClass.description }}</p>
+                } @else {
+                  <p class="class-desc muted">No description yet.</p>
+                }
+
+                <div class="class-stats row">
+                  <span class="file-chip">
+                    <span class="material-symbols-outlined">menu_book</span>
+                    {{ lessonsForClass(schoolClass.id).length }} Lessons
+                  </span>
+                  <span class="file-chip">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                    {{ summariesForClass(schoolClass.id) }} Summaries
+                  </span>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-dark btn-block" (click)="openClass(schoolClass.id)">
+                Open Class
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </article>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="lessons-section stack-lg">
+      <div class="section-head">
+        <div class="row">
+          <h2 class="section-title"><span class="material-symbols-outlined">schedule</span> Recent Lessons</h2>
+          <span class="badge badge-gray">{{ recentLessons().length }} Lesson{{ recentLessons().length !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      @if (recentLessons().length === 0) {
+        <div class="card empty">
+          <span class="material-symbols-outlined">menu_book</span>
+          <span>No lessons published yet.</span>
+        </div>
+      } @else {
+        <div class="recent-lessons stack">
+          @for (item of recentLessons(); track item.lesson.id) {
+            <article class="card recent-lesson card-pad">
+              <div class="row-between">
+                <div class="stack-sm" style="gap: 2px">
+                  <span class="tiny muted strong mono">{{ item.className }}</span>
+                  <h3 class="lesson-title">{{ item.lesson.title }}</h3>
+                </div>
+                <button type="button" class="btn btn-dark btn-sm" (click)="openLesson(item.lesson.id)">
+                  Open Lesson
+                  <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+              </div>
+
+              <div class="row wrap lesson-files">
+                <span class="file-chip muted">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ item.lesson.created_at | date: 'MMM d, y' }}
+                </span>
+                <span class="badge" [class]="item.lesson.summary ? 'badge-green' : 'badge-gray'">
+                  @if (item.lesson.summary) {
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                    Summary ready
+                  } @else {
+                    <span class="material-symbols-outlined">remove</span>
+                    Pending
+                  }
+                </span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    @if (isRepresentative()) {
+      <section class="card card-pad rep-tools">
+        <div class="row-between">
+          <div class="stack-sm" style="gap: 2px">
+            <span class="small muted strong">Student Representative tools</span>
+            <span class="tiny muted">Upload whiteboard photos so your classmates can access AI explanations.</span>
+          </div>
+          <button type="button" class="btn btn-dark" [disabled]="uploadLessons().length === 0" (click)="openUploadModal()">
+            <span class="material-symbols-outlined">add_a_photo</span>
+            Upload Classroom Photo
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+
+  <!-- Join Class modal -->
+  @if (joinModalOpen()) {
+    <div class="modal-overlay" (click)="closeJoinModal()">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="join-class-title" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title" id="join-class-title">Join a Class</h3>
+          <button type="button" class="modal-close" (click)="closeJoinModal()" aria-label="Close">×</button>
+        </div>
+
+        <div class="modal-body stack" style="gap: 14px">
+          <div class="field">
+            <label for="joinCode">Class code</label>
+            <input id="joinCode" class="input" type="text" [value]="joinCode()" (input)="joinCode.set($any($event.target).value)" placeholder="e.g. ABC12XYZ" />
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert alert-error">
+              <span class="material-symbols-outlined">error</span>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" (click)="closeJoinModal()">Cancel</button>
+          <button type="button" class="btn btn-dark" [disabled]="joining()" (click)="submitJoin()">
+            @if (joining()) { <span class="spinner light"></span> Joining… } @else { <span class="material-symbols-outlined">login</span> Join Class }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <app-upload-photo-modal
+    [open]="uploadModalOpen()"
+    [lessons]="uploadLessons()"
+    [defaultLessonId]="uploadDefaultLessonId()"
+    (dismissed)="closeUploadModal()"
+    (uploaded)="onPhotoUploaded()"
+  ></app-upload-photo-modal>
+</app-shell>

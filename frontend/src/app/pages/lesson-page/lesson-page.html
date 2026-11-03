@@ -1,0 +1,231 @@
+<app-shell [role]="shellRole()">
+  <div header class="crumb-row">
+    <a class="crumb-link" [routerLink]="backToClassLink()">{{ className() }}</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-current">{{ lessonTitle() }}</span>
+  </div>
+
+  @if (loading()) {
+    <div class="page page-narrow">
+      <div class="card empty">
+        <span class="spinner"></span>
+        <span>Loading lesson…</span>
+      </div>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="page page-narrow">
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="page page-narrow">
+      <a class="back-link" (click)="backToClass()">&larr; Back to class</a>
+
+      <section class="card card-pad lesson-hero">
+        <div class="stack-sm" style="gap: 6px">
+          <h1 class="lesson-title">{{ lessonTitle() }}</h1>
+
+          <div class="row wrap class-meta">
+            <span class="strong small">Teacher:</span>
+            <span class="muted small">{{ teacher()?.name }}</span>
+            <span class="dot">·</span>
+            <span class="strong small">Class:</span>
+            <span class="muted small">{{ className() }}</span>
+            <span class="dot">·</span>
+            <span class="strong small">Created:</span>
+            <span class="muted small">{{ formatDate(createdAt()) }}</span>
+          </div>
+
+          @if (description()) {
+            <p class="lesson-desc">{{ description() }}</p>
+          }
+        </div>
+
+        <div class="lesson-actions row">
+          @if (canGenerateSummary()) {
+            <button type="button" class="btn btn-indigo" [disabled]="generatingSummary()" (click)="generateSummary()">
+              @if (generatingSummary()) { <span class="spinner light"></span> Processing… } @else if (summary()) { <span class="material-symbols-outlined">auto_awesome</span> Regenerate Summary } @else { <span class="material-symbols-outlined">auto_awesome</span> Generate AI Summary }
+            </button>
+          } @else if (!summary()) {
+            <span class="badge badge-gray" title="Only the lesson's teacher can generate an AI summary.">Summary not available</span>
+          }
+
+          @if (canUploadPhoto()) {
+            <button type="button" class="btn btn-dark" (click)="openUploadModal()">
+              <span class="material-symbols-outlined">add_a_photo</span> Upload Classroom Photo
+            </button>
+          }
+        </div>
+      </section>
+
+      <div class="lesson-grid">
+        <div class="stack-lg">
+          <!-- Materials -->
+          <section class="card card-pad">
+            <div class="section-head">
+              <div class="row">
+                <span class="section-title"><span class="material-symbols-outlined">description</span> Lesson Materials</span>
+                <span class="badge badge-gray">{{ materials().length }} {{ materials().length === 1 ? 'file' : 'files' }}</span>
+              </div>
+            </div>
+
+            <div class="materials-list stack">
+              @if (materials().length === 0) {
+                <div class="card empty">
+                  <span class="material-symbols-outlined">description</span>
+                  <span>No lesson materials uploaded yet.</span>
+                </div>
+              } @else {
+                @for (file of materials(); track file.id) {
+                  <div class="file-row">
+                    <div class="file-icon">
+                      <span class="material-symbols-outlined">{{ materialIcon(file.original_name) }}</span>
+                    </div>
+                    <div class="grow stack-sm" style="gap: 2px">
+                      <span class="small truncate strong">{{ file.original_name }}</span>
+                      <span class="tiny muted">
+                        {{ file.uploader?.name }} uploaded {{ formatDate(file.created_at) }} &bull; {{ file.size | fileSize }}
+                      </span>
+                    </div>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="openFile(file.url)" title="Open file">View</button>
+                  </div>
+                }
+              }
+            </div>
+          </section>
+
+          <!-- Photos -->
+          <section class="card card-pad photos-section">
+            <div class="section-head">
+              <div class="row">
+                <span class="section-title"><span class="material-symbols-outlined">photo_camera</span> Classroom Photos</span>
+                <span class="badge badge-gray">{{ photos().length }} {{ photos().length === 1 ? 'photo' : 'photos' }}</span>
+              </div>
+            </div>
+
+            <div class="photo-grid">
+              @if (photos().length === 0) {
+                <div class="card empty">
+                  <span class="material-symbols-outlined">photo_camera</span>
+                  <span>No classroom photos uploaded yet.</span>
+                </div>
+              } @else {
+                @for (file of photos(); track file.id) {
+                  <article class="photo-card">
+                    <div class="photo-wrap">
+                      <img [src]="file.url" [alt]="file.original_name" loading="lazy" />
+                    </div>
+                    <div class="photo-card-body">
+                      <div class="row-between">
+                        <span class="small truncate strong">{{ file.original_name }}</span>
+                        <span class="tiny muted">{{ formatDate(file.created_at) }}</span>
+                      </div>
+                      <span class="tiny muted">by {{ file.uploader?.name }}</span>
+
+                      <div class="photo-status">
+                        @if (explanationFor(file); as explanation) {
+                          <span class="badge badge-green">
+                            <span class="material-symbols-outlined">auto_awesome</span>
+                            AI explanation ready
+                          </span>
+                          <div class="prose explanation-prose" [innerHTML]="explanation.content | markdown"></div>
+                        } @else if (generatingExplanationId() === file.id) {
+                          <div class="row-center"><span class="spinner"></span> <span class="tiny muted">Generating explanation…</span></div>
+                        } @else {
+                          <span class="badge badge-gray">No explanation yet</span>
+                        }
+                      </div>
+
+                      <div class="photo-actions row">
+                        @if (explanationFor(file)) {
+                          <button type="button" class="btn btn-outline btn-sm btn-block" (click)="generateExplanation(file)">
+                            <span class="material-symbols-outlined">regenerate</span> Regenerate Explanation
+                          </button>
+                        } @else if (canGenerateExplanation()) {
+                          <button type="button" class="btn btn-dark btn-sm btn-block" [disabled]="generatingExplanationId() === file.id" (click)="generateExplanation(file)">
+                            @if (generatingExplanationId() === file.id) { <span class="spinner light"></span> Processing… } @else { <span class="material-symbols-outlined">auto_awesome</span> Explain with AI }
+                          </button>
+                        } @else {
+                          <span class="badge badge-gray">Explanation not available</span>
+                        }
+                      </div>
+
+                      @if (explanationErrorId() === file.id) {
+                        <div class="alert alert-error">
+                          <span class="material-symbols-outlined">error</span>
+                          <span>Could not generate an explanation for this photo.</span>
+                        </div>
+                      }
+                    </div>
+                  </article>
+                }
+              }
+            </div>
+          </section>
+        </div>
+
+        <aside class="stack-lg">
+          <!-- AI Summary -->
+          <section class="card card-pad ai-summary-section">
+            <div class="row-between stack-sm" style="gap: 10px">
+              <div class="row wrap">
+                <span class="section-title"><span class="material-symbols-outlined">auto_awesome</span> AI Lesson Summary</span>
+                <span class="badge" [class]="summary() ? 'badge-green' : 'badge-gray'">{{ summary() ? 'Ready' : 'Pending' }}</span>
+              </div>
+              <div class="muted small">{{ summary() ? 'Generated for this lesson' : 'Catch-up notes generated from the lesson materials.' }}</div>
+            </div>
+
+            <div class="summary-content">
+              @if (generatingSummary()) {
+                <div class="card empty"> <span class="spinner"></span> <span>Generating AI summary…</span> </div>
+              } @else if (summary(); as summary) {
+                <div class="prose" [innerHTML]="summary.content | markdown"></div>
+                <div class="row-between">
+                  <span class="tiny muted">Generated {{ formatDate(summary.created_at) }}</span>
+                  <button type="button" class="btn btn-ghost btn-xs" (click)="generateSummary()" [disabled]="generatingSummary()">Regenerate</button>
+                </div>
+              } @else {
+                <div class="empty summary-empty">
+                  <span class="material-symbols-outlined">auto_awesome</span>
+                  <span>No AI summary yet</span>
+                  <p>No lesson summary is available for this lesson yet.</p>
+
+                  @if (canGenerateSummary()) {
+                    <button type="button" class="btn btn-dark btn-sm" (click)="generateSummary()">
+                      <span class="material-symbols-outlined">auto_awesome</span> Generate AI Summary
+                    </button>
+                  } @else {
+                    <span class="badge badge-gray">
+                      @if (shellRole() === 'teacher') {
+                        Only the lesson's teacher can generate a summary.
+                      } @else {
+                        Wait for the teacher to generate a summary.
+                      }
+                    </span>
+                  }
+                </div>
+              }
+
+              @if (summaryError()) {
+                <div class="alert alert-error">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ summaryError() }}</span>
+                </div>
+              }
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  }
+
+  <app-upload-photo-modal
+    [open]="uploadModalOpen()"
+    [lessons]="[{ id: lessonId() ?? -1, title: lessonTitle() }]"
+    [defaultLessonId]="lessonId()"
+    (dismissed)="closeUploadModal()"
+    (uploaded)="onPhotoUploaded()"
+  ></app-upload-photo-modal>
+</app-shell>
