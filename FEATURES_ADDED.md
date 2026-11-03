@@ -32,6 +32,6 @@ This document summarizes the ClassCatch features and fixes added during our work
 
 ## Navigation and layout
 
-- Desktop uses a sidebar; mobile uses a fixed bottom navigation bar.
+- Desktop uses a sidebar; mobile uses a floating, fully rounded bottom navigation bar.
 - Dashboard and My Classes highlights follow the current page, including class detail and lesson pages.
 - Breadcrumbs and top bar styling are shared across pages, with matching navigation colors and icon sizing.
