@@ -86,3 +86,6 @@
 .guidelines strong {
   color: #374151;
 }
+.dropzone.uploading { border-color: #c7d2fe; background: #f7f7ff; cursor: progress; }
+.upload-progress-stack { display: flex; flex-direction: column; gap: 7px; }
+.upload-copy-active { color: #4f46e5 !important; }

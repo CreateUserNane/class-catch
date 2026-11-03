@@ -265,6 +265,7 @@
 .shell-content {
   padding-top: 64px;
   min-height: 100vh;
+  animation: page-enter 0.18s ease both;
 }
 
 .logout-confirm-overlay {
@@ -383,6 +384,7 @@
     cursor: pointer;
     appearance: none;
     -webkit-tap-highlight-color: transparent;
+    transition: color 0.16s ease, transform 0.16s ease;
   }
 
   .student-nav .mobile-nav-item {
@@ -427,6 +429,7 @@
   .mobile-nav-item.active .material-symbols-outlined {
     color: var(--shell-ink);
     font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 18;
+    transform: translateY(-1px) scale(1.06);
   }
 }
 

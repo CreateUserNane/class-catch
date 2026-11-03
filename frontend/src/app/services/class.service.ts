@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ClassJoinRequest, SchoolClass } from '../models/class';
 import { Lesson } from '../models/lesson';
@@ -128,12 +128,34 @@ export class ClassService {
     });
   }
 
+  uploadMaterialWithProgress(lessonId: number, file: File): Observable<HttpEvent<LessonFile>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<LessonFile>(`${this.apiUrl}/lessons/${lessonId}/files`, formData, {
+      headers: this.authHeaders(),
+      observe: 'events',
+      reportProgress: true,
+    });
+  }
+
   uploadPhoto(lessonId: number, file: File): Observable<LessonFile> {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post<LessonFile>(`${this.apiUrl}/lessons/${lessonId}/photos`, formData, {
       headers: this.authHeaders(),
+    });
+  }
+
+  uploadPhotoWithProgress(lessonId: number, file: File): Observable<HttpEvent<LessonFile>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<LessonFile>(`${this.apiUrl}/lessons/${lessonId}/photos`, formData, {
+      headers: this.authHeaders(),
+      observe: 'events',
+      reportProgress: true,
     });
   }
 

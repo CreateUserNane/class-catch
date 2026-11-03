@@ -9,7 +9,7 @@
           </h3>
           <p class="tiny muted">{{ lessonTitle() }}</p>
         </div>
-        <button type="button" class="modal-close" (click)="close()" aria-label="Close">×</button>
+        <button type="button" class="modal-close" [disabled]="uploading()" (click)="close()" aria-label="Close">×</button>
       </div>
 
       <div class="modal-body">
@@ -21,7 +21,7 @@
         @if (lessons().length > 1) {
           <div class="field">
             <label for="photo-lesson">Lesson</label>
-            <select id="photo-lesson" class="select" [ngModel]="lessonId()" (ngModelChange)="lessonId.set($event)">
+            <select id="photo-lesson" class="select" [disabled]="uploading()" [ngModel]="lessonId()" (ngModelChange)="lessonId.set($event)">
               @for (lesson of lessons(); track lesson.id) {
                 <option [ngValue]="lesson.id">{{ lesson.title }}</option>
               }
@@ -31,6 +31,7 @@
 
         <div
           class="dropzone"
+          [class.uploading]="uploading()"
           role="button"
           tabindex="0"
           (click)="fileInput.click()"
@@ -38,7 +39,7 @@
           (drop)="onDrop($event)"
           (dragover)="onDragOver($event)"
         >
-          <input #fileInput type="file" class="hidden" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" (click)="$event.stopPropagation()" (change)="onFileInput($event)" />
+          <input #fileInput type="file" class="hidden" [disabled]="uploading()" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" (click)="$event.stopPropagation()" (change)="onFileInput($event)" />
           <span class="dropzone-icon material-symbols-outlined">cloud_upload</span>
           <p class="dropzone-title"><span>Click to browse</span> or drag &amp; drop board photos</p>
           <p class="tiny muted">Choosing or dropping a photo uploads it automatically. JPG, PNG, WEBP or GIF, up to 5 MB.</p>
@@ -53,17 +54,24 @@
             </div>
             <div class="grow stack-sm" style="gap: 2px">
               <span class="small truncate" style="font-weight: 600">{{ file.name }}</span>
-              <span class="tiny" style="color: #059669">
+              <span class="tiny" [class.upload-copy-active]="uploading()" style="color: #059669">
                 <span class="dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; margin-right: 5px"></span>
-                Ready for AI analysis ({{ file.size | fileSize }})
+                {{ uploading() ? 'Uploading… ' + uploadProgress() + '%' : 'Ready for AI analysis' }} ({{ file.size | fileSize }})
               </span>
             </div>
             <div class="row" style="gap: 4px">
-              <button type="button" class="btn btn-ghost btn-sm" (click)="fileInput.click()">Replace</button>
-              <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="removeFile()" title="Remove photo" aria-label="Remove photo">
+              <button type="button" class="btn btn-ghost btn-sm" [disabled]="uploading()" (click)="fileInput.click()">Replace</button>
+              <button type="button" class="btn btn-ghost btn-icon btn-sm" [disabled]="uploading()" (click)="removeFile()" title="Remove photo" aria-label="Remove photo">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
+          </div>
+        }
+
+        @if (uploading()) {
+          <div class="upload-progress-stack" role="status">
+            <div class="upload-progress-meta"><span>Uploading classroom photo</span><strong>{{ uploadProgress() }}%</strong></div>
+            <div class="upload-progress" role="progressbar" aria-label="Classroom photo upload progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="uploadProgress()"><span [style.width.%]="uploadProgress()"></span></div>
           </div>
         }
 
@@ -81,10 +89,10 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+        <button type="button" class="btn btn-outline" [disabled]="uploading()" (click)="close()">Cancel</button>
         <button type="button" class="btn btn-indigo" [disabled]="uploading() || !selectedFile() || !lessonId()" (click)="upload()">
           @if (uploading()) {
-            <span class="spinner light"></span> Uploading…
+            <span class="spinner light"></span> Uploading {{ uploadProgress() }}%
           } @else if (error() && selectedFile()) {
             <span class="material-symbols-outlined">refresh</span> Retry Upload
           } @else if (selectedFile()) {

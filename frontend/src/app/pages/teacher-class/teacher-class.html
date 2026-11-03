@@ -96,7 +96,7 @@
               </div>
             }
             @for (view of lessons(); track view.lesson.id; let i = $index) {
-              <article class="card lesson-card">
+              <article class="card lesson-card activity-enter" [style.--row-index]="i">
                 <div class="lesson-card-head">
                   <div class="row wrap">
                     <h3 class="lesson-title">{{ view.lesson.title }}</h3>
@@ -303,7 +303,7 @@
           <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lesson-modal-title" (click)="$event.stopPropagation()">
             <div class="modal-header">
               <h3 class="modal-title" id="lesson-modal-title">{{ editingLessonId() ? 'Edit Lesson' : 'Create New Lesson' }}</h3>
-              <button type="button" class="modal-close" (click)="closeLessonModal()" aria-label="Close">×</button>
+              <button type="button" class="modal-close" [disabled]="creatingLesson()" (click)="closeLessonModal()" aria-label="Close">×</button>
             </div>
 
             <form [formGroup]="form" (ngSubmit)="submitLesson()" novalidate>
@@ -329,6 +329,7 @@
                       class="hidden"
                       id="materialFile"
                       accept=".pdf,.ppt,.pptx,.doc,.docx"
+                      [disabled]="creatingLesson()"
                       (change)="onSelectMaterialFile($event)"
                     />
                     <button type="button" class="dropzone-btn" (click)="openMaterialFileInput()">
@@ -346,7 +347,14 @@
                       <span class="truncate strong">{{ staged.name }}</span>
                       <span class="tiny muted">{{ staged.size | fileSize }}</span>
                     </div>
-                    <button type="button" class="btn btn-ghost btn-sm" (click)="selectedMaterialFile.set(null)">Remove</button>
+                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="creatingLesson()" (click)="selectedMaterialFile.set(null)">Remove</button>
+                  </div>
+                }
+
+                @if (stagedUploadInProgress()) {
+                  <div class="upload-progress-stack" role="status">
+                    <div class="upload-progress-meta"><span>Uploading lesson material</span><strong>{{ stagedUploadProgress() }}%</strong></div>
+                    <div class="upload-progress" role="progressbar" aria-label="Lesson material upload progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="stagedUploadProgress()"><span [style.width.%]="stagedUploadProgress()"></span></div>
                   </div>
                 }
 
@@ -366,10 +374,10 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-outline" (click)="closeLessonModal()">Cancel</button>
+                <button type="button" class="btn btn-outline" [disabled]="creatingLesson()" (click)="closeLessonModal()">Cancel</button>
                 <button type="submit" class="btn btn-dark" [disabled]="creatingLesson()">
                   @if (creatingLesson()) {
-                    <span class="spinner light"></span> Saving…
+                    <span class="spinner light"></span> {{ stagedUploadInProgress() ? 'Uploading ' + stagedUploadProgress() + '%' : 'Saving…' }}
                   } @else {
                     <span class="material-symbols-outlined">check</span> Save Lesson
                   }

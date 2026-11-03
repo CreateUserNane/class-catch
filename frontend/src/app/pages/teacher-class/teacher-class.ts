@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
@@ -55,6 +56,8 @@ export class TeacherClass implements OnInit {
   protected readonly lessonModalOpen = signal(false);
   protected readonly editingLessonId = signal<number | null>(null);
   protected readonly creatingLesson = signal(false);
+  protected readonly stagedUploadInProgress = signal(false);
+  protected readonly stagedUploadProgress = signal(0);
   protected readonly lessonError = signal('');
   protected readonly selectedMaterialFile = signal<File | null>(null);
   protected readonly uploadError = signal('');
@@ -216,9 +219,12 @@ export class TeacherClass implements OnInit {
   }
 
   protected closeLessonModal(): void {
+    if (this.creatingLesson()) return;
     this.lessonModalOpen.set(false);
     this.editingLessonId.set(null);
     this.creatingLesson.set(false);
+    this.stagedUploadInProgress.set(false);
+    this.stagedUploadProgress.set(0);
     this.selectedMaterialFile.set(null);
   }
 
@@ -271,10 +277,21 @@ export class TeacherClass implements OnInit {
 
     const finalize = (lessonId: number): void => {
       if (stagedFile) {
-        this.classService.uploadMaterial(lessonId, stagedFile).subscribe({
-          next: () => this.finishLessonSave(),
+        this.stagedUploadInProgress.set(true);
+        this.stagedUploadProgress.set(0);
+        this.classService.uploadMaterialWithProgress(lessonId, stagedFile).subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              this.stagedUploadProgress.set(Math.round((event.loaded / event.total) * 100));
+            } else if (event.type === HttpEventType.Response) {
+              this.stagedUploadProgress.set(100);
+              this.stagedUploadInProgress.set(false);
+              this.finishLessonSave();
+            }
+          },
           error: (error) => {
             this.creatingLesson.set(false);
+            this.stagedUploadInProgress.set(false);
             this.uploadError.set(error?.error?.message || 'Lesson saved, but the file could not be uploaded.');
             this.refreshLessons();
             this.toast.show('Lesson saved — the material upload failed.');
@@ -297,6 +314,7 @@ export class TeacherClass implements OnInit {
 
   private finishLessonSave(): void {
     this.creatingLesson.set(false);
+    this.stagedUploadInProgress.set(false);
     this.closeLessonModal();
     this.toast.show('Lesson saved successfully.');
     this.refreshLessons();

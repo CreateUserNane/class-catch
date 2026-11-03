@@ -24,7 +24,7 @@
     }
 
     @if (loading()) {
-      <div class="card empty"><span class="spinner"></span><span>Loading…</span></div>
+      <div class="skeleton-list" role="status" aria-label="Loading lessons and reviews"><div class="skeleton-row"><span class="skeleton-block"></span><div class="skeleton-copy"><span class="skeleton-line short"></span><span class="skeleton-line long"></span></div></div><div class="skeleton-row"><span class="skeleton-block"></span><div class="skeleton-copy"><span class="skeleton-line short"></span><span class="skeleton-line"></span></div></div><div class="skeleton-row"><span class="skeleton-block"></span><div class="skeleton-copy"><span class="skeleton-line short"></span><span class="skeleton-line long"></span></div></div></div>
     } @else if (page() === 'review') {
       <section class="hub-section">
         <div class="hub-section-heading">
@@ -104,8 +104,8 @@
         <div class="card hub-empty"><span class="material-symbols-outlined">filter_alt_off</span><strong>No lessons match these filters</strong><span>Try another search or clear the filters.</span><button type="button" class="btn btn-outline btn-sm" (click)="resetFilters()">Clear filters</button></div>
       } @else {
         <div class="hub-list">
-          @for (entry of visibleLessons(); track entry.lesson.id) {
-            <article class="card hub-lesson">
+          @for (entry of visibleLessons(); track entry.lesson.id; let i = $index) {
+            <article class="card hub-lesson activity-enter" [style.--row-index]="i">
               <span class="hub-row-icon material-symbols-outlined">menu_book</span>
               <div class="hub-row-copy">
                 <span class="hub-class-name"><span class="class-accent-dot" [attr.data-accent]="classAccent(entry.schoolClass.id)" aria-hidden="true"></span>{{ entry.schoolClass.name }}</span>

@@ -8,6 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FileSizePipe } from '../pipes/file-size';
 import { ClassService } from '../../services/class.service';
@@ -43,6 +44,7 @@ export class UploadPhotoModal {
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly uploading = signal(false);
+  protected readonly uploadProgress = signal(0);
   protected readonly error = signal('');
 
   private readonly maxBytes = 5 * 1024 * 1024;
@@ -68,6 +70,7 @@ export class UploadPhotoModal {
     this.revokePreview();
     this.error.set('');
     this.uploading.set(false);
+    this.uploadProgress.set(0);
   }
 
   private revokePreview(): void {
@@ -95,7 +98,7 @@ export class UploadPhotoModal {
   }
 
   private async acceptFile(file: File | null): Promise<void> {
-    if (!file) {
+    if (!file || this.uploading()) {
       return;
     }
 
@@ -149,15 +152,21 @@ export class UploadPhotoModal {
     }
 
     this.uploading.set(true);
+    this.uploadProgress.set(0);
     this.error.set('');
 
-    this.classService.uploadPhoto(lesson, file).subscribe({
-      next: (uploaded) => {
-        this.uploading.set(false);
-        this.revokePreview();
-        this.toast.show('Status: Pending teacher review. The photo will be published after approval.');
-        this.uploaded.emit(uploaded);
-        this.dismissed.emit();
+    this.classService.uploadPhotoWithProgress(lesson, file).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.uploadProgress.set(Math.round((event.loaded / event.total) * 100));
+        } else if (event.type === HttpEventType.Response && event.body) {
+          this.uploadProgress.set(100);
+          this.uploading.set(false);
+          this.revokePreview();
+          this.toast.show('Status: Pending teacher review. The photo will be published after approval.');
+          this.uploaded.emit(event.body);
+          this.dismissed.emit();
+        }
       },
       error: (err) => {
         this.uploading.set(false);
@@ -167,6 +176,7 @@ export class UploadPhotoModal {
   }
 
   protected close(): void {
+    if (this.uploading()) return;
     this.revokePreview();
     this.dismissed.emit();
   }

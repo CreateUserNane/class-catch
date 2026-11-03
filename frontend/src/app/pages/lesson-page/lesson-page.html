@@ -59,9 +59,15 @@
           }
           @if (canGenerateSummary()) {
             <label class="btn btn-dark material-upload-button" [class.disabled]="uploadingMaterial()">
-              @if (uploadingMaterial()) { <span class="spinner light"></span> Uploading… } @else { <span class="material-symbols-outlined">upload_file</span> Add PowerPoint }
+              @if (uploadingMaterial()) { <span class="spinner light"></span> Uploading {{ materialUploadProgress() }}% } @else { <span class="material-symbols-outlined">upload_file</span> Add PowerPoint }
               <input type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" (change)="uploadPowerPoint($event)" [disabled]="uploadingMaterial()" />
             </label>
+          }
+          @if (uploadingMaterial()) {
+            <div class="inline-upload-progress" role="status" aria-label="PowerPoint upload progress">
+              <div class="upload-progress-meta"><span>Uploading PowerPoint</span><strong>{{ materialUploadProgress() }}%</strong></div>
+              <div class="upload-progress" role="progressbar" aria-label="PowerPoint upload progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="materialUploadProgress()"><span [style.width.%]="materialUploadProgress()"></span></div>
+            </div>
           }
         </div>
       </section>
@@ -125,7 +131,7 @@
                 </div>
               } @else {
                 @for (file of photos(); track file.id) {
-                  <article class="photo-card">
+                  <article class="photo-card" [class.activity-enter]="newlyApprovedPhotoId() === file.id">
                     <div class="photo-wrap">
                       <img [src]="file.url" [alt]="file.original_name" loading="lazy" />
                     </div>

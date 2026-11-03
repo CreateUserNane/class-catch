@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
@@ -49,6 +50,8 @@ export class LessonPage implements OnInit {
 
   protected readonly uploadModalOpen = signal(false);
   protected readonly uploadingMaterial = signal(false);
+  protected readonly materialUploadProgress = signal(0);
+  protected readonly newlyApprovedPhotoId = signal<number | null>(null);
   protected readonly materialUploadError = signal('');
 
   protected readonly shellRole = computed(() => this.user()?.role ?? 'student');
@@ -245,6 +248,7 @@ export class LessonPage implements OnInit {
     this.classService.moderatePhoto(file.id, status).subscribe({
       next: (updatedFile) => {
         this.moderatingPhotoId.set(null);
+        this.newlyApprovedPhotoId.set(status === 'approved' ? updatedFile.id : null);
         this.lesson.update((current) => current
           ? { ...current, files: (current.files ?? []).map((item) => item.id === updatedFile.id ? updatedFile : item) }
           : current);
@@ -328,12 +332,18 @@ export class LessonPage implements OnInit {
     }
 
     this.uploadingMaterial.set(true);
+    this.materialUploadProgress.set(0);
     this.materialUploadError.set('');
-    this.classService.uploadMaterial(lessonId, file).subscribe({
-      next: () => {
-        this.uploadingMaterial.set(false);
-        this.toast.show('PowerPoint uploaded to lesson materials.');
-        this.loadLesson(lessonId);
+    this.classService.uploadMaterialWithProgress(lessonId, file).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.materialUploadProgress.set(Math.round((event.loaded / event.total) * 100));
+        } else if (event.type === HttpEventType.Response && event.body) {
+          this.materialUploadProgress.set(100);
+          this.uploadingMaterial.set(false);
+          this.toast.show('PowerPoint uploaded to lesson materials.');
+          this.loadLesson(lessonId);
+        }
       },
       error: (error) => {
         this.uploadingMaterial.set(false);

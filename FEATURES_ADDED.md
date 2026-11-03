@@ -24,6 +24,7 @@ This document summarizes the ClassCatch features and fixes added during our work
 - Student and teacher lesson libraries support searching lesson, class, and file names; filtering by class and file type; and sorting by date.
 - Class accents carry into class headers, lesson pages, lesson libraries, and the teacher review queue. Status badges use shared pending, approved, rejected, and neutral styles.
 - Shared controls have clearer hover, keyboard-focus, loading, and reduced-motion behavior.
+- Motion polish includes subtle page transitions, lesson and photo arrival cues, lesson-list skeletons, a gently shifting active mobile icon, and upload progress for classroom photos and lesson materials.
 - Student and teacher dashboards use a soft paper-grain background that matches the login and registration pages.
 - Class detail pages link back to My Classes.
 - Teacher navigation includes a cross-class **Lessons** library and a **Review Queue** for approving student class join requests and approving or rejecting pending classroom photos.

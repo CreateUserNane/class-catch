@@ -74,6 +74,15 @@
   margin-top: 2px;
 }
 
+.inline-upload-progress {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 135px;
+  max-width: 210px;
+}
+
 .lesson-grid {
   display: grid;
   grid-template-columns: 1fr;
