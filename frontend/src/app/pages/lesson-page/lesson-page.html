@@ -57,6 +57,12 @@
               <span class="material-symbols-outlined">add_a_photo</span> Upload Classroom Photo
             </button>
           }
+          @if (canGenerateSummary()) {
+            <label class="btn btn-dark material-upload-button" [class.disabled]="uploadingMaterial()">
+              @if (uploadingMaterial()) { <span class="spinner light"></span> Uploading… } @else { <span class="material-symbols-outlined">upload_file</span> Add PowerPoint }
+              <input type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" (change)="uploadPowerPoint($event)" [disabled]="uploadingMaterial()" />
+            </label>
+          }
         </div>
       </section>
 
@@ -69,12 +75,6 @@
                 <span class="section-title"><span class="material-symbols-outlined">description</span> Lesson Materials</span>
                 <span class="badge badge-gray">{{ materials().length }} {{ materials().length === 1 ? 'file' : 'files' }}</span>
               </div>
-              @if (canGenerateSummary()) {
-                <label class="btn btn-outline btn-sm material-upload-button" [class.disabled]="uploadingMaterial()">
-                  @if (uploadingMaterial()) { <span class="spinner"></span> Uploading… } @else { <span class="material-symbols-outlined">upload_file</span> Add PowerPoint }
-                  <input type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" (change)="uploadPowerPoint($event)" [disabled]="uploadingMaterial()" />
-                </label>
-              }
             </div>
 
             @if (materialUploadError()) {
