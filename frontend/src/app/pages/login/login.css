@@ -248,6 +248,7 @@ button[type='submit']:disabled {
   margin: 16px 0 0;
   font-size: 0.9rem;
   color: #4b4b47;
+  text-align: center;
 }
 
 .auth-link a {
