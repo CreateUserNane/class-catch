@@ -1,12 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
 import { Lesson } from '../../models/lesson';
-import { LessonFile } from '../../models/lesson-file';
 import { SchoolClass } from '../../models/class';
 import { User } from '../../models/user';
 import { AppShell } from '../../shared/shell/shell';
@@ -119,7 +117,6 @@ export class StudentClass implements OnInit {
         this.lessons.set(lessons);
         this.loading.set(false);
 
-        this.loadLessonDetails(lessons);
       },
       error: (error) => {
         this.loading.set(false);
@@ -128,20 +125,4 @@ export class StudentClass implements OnInit {
     });
   }
 
-  private loadLessonDetails(lessons: Lesson[]): void {
-    if (lessons.length === 0) {
-      return;
-    }
-
-    forkJoin(
-      lessons.map((lesson) =>
-        this.classService.getLesson(lesson.id).pipe(
-          catchError(() => of({ ...lesson, files: [] as LessonFile[], summary: null } satisfies Lesson)),
-        ),
-      ),
-    ).subscribe({
-      next: (detailed) => this.lessons.set(detailed),
-      error: () => this.lessons.set(lessons),
-    });
-  }
 }

@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, injec
 import { HttpEventType } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
 import { LessonFile } from '../../models/lesson-file';
@@ -428,26 +427,13 @@ export class TeacherClass implements OnInit {
 
     this.classService.getLessons(classId).subscribe({
       next: (lessons) => {
-        forkJoin(
-          lessons.map((lesson) =>
-            this.classService.getLesson(lesson.id).pipe(
-              catchError(() =>
-                of({ ...lesson, files: [] as LessonFile[], summary: null } satisfies Lesson),
-              ),
-            ),
-          ),
-        ).subscribe({
-          next: (views) => {
-            this.lessons.set(
-              views.map((lesson) => ({
-                lesson,
-                materials: (lesson.files ?? []).filter((file) => file.type === 'material'),
-                photos: (lesson.files ?? []).filter((file) => file.type === 'photo'),
-              })),
-            );
-          },
-          error: () => this.lessons.set([]),
-        });
+        this.lessons.set(
+          lessons.map((lesson) => ({
+            lesson,
+            materials: (lesson.files ?? []).filter((file) => file.type === 'material'),
+            photos: (lesson.files ?? []).filter((file) => file.type === 'photo'),
+          })),
+        );
       },
       error: () => this.lessons.set([]),
     });

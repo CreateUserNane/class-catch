@@ -36,18 +36,7 @@ export class StudentWorkspaceService {
             map((lessons) => lessons.map((lesson) => ({ lesson, schoolClass }))),
             catchError(() => of([] as StudentLessonEntry[])),
           ),
-        )).pipe(
-          map((groups) => groups.flat()),
-          switchMap((entries) => {
-            if (entries.length === 0) return of({ classes, lessons: [] as StudentLessonEntry[] });
-            return forkJoin(entries.map((entry) =>
-              this.classService.getLesson(entry.lesson.id).pipe(
-                map((lesson) => ({ ...entry, lesson })),
-                catchError(() => of(entry)),
-              ),
-            )).pipe(map((lessons) => ({ classes, lessons })));
-          }),
-        );
+        )).pipe(map((groups) => ({ classes, lessons: groups.flat() })));
       }),
     );
   }

@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ClassService } from '../../services/class.service';
 import { Lesson } from '../../models/lesson';
-import { LessonFile } from '../../models/lesson-file';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
@@ -141,7 +138,6 @@ export class StudentClasses implements OnInit {
           items.map((item) => (item.schoolClass.id === schoolClass.id ? { ...item, lessons } : item)),
         );
 
-        this.loadLessonDetails(schoolClass, lessons);
       },
       error: () => {
         this.classLessons.update((items) =>
@@ -151,25 +147,4 @@ export class StudentClasses implements OnInit {
     });
   }
 
-  protected loadLessonDetails(schoolClass: SchoolClass, lessons: Lesson[]): void {
-    if (lessons.length === 0) {
-      return;
-    }
-
-    forkJoin(
-      lessons.map((lesson) =>
-        this.classService.getLesson(lesson.id).pipe(
-          catchError(() => of({ ...lesson, files: [] as LessonFile[], summary: null } satisfies Lesson)),
-        ),
-      ),
-    ).subscribe({
-      next: (detailed) => {
-        this.classLessons.update((items) =>
-          items.map((item) =>
-            item.schoolClass.id === schoolClass.id ? { ...item, lessons: detailed } : item,
-          ),
-        );
-      },
-    });
-  }
 }

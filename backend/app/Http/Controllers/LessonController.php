@@ -19,7 +19,36 @@ class LessonController extends Controller
             abort(403, 'You cannot view lessons for this class.');
         }
 
-        return response()->json($schoolClass->lessons()->latest()->get());
+        $isTeacher = $user->role === 'teacher' && $schoolClass->teacher_id === $user->id;
+
+        $lessons = $schoolClass->lessons()
+            ->with([
+                'teacher',
+                'schoolClass.teacher',
+                'schoolClass.representative',
+                'summary',
+                'summary.lessonFile.uploader',
+                'files' => function ($query) use ($isTeacher, $user) {
+                    $query->with('uploader')
+                        ->when(! $isTeacher, function ($query) use ($user) {
+                            $query->where(function ($visible) use ($user) {
+                                $visible->where('type', 'material')
+                                    ->orWhere(function ($photo) use ($user) {
+                                        $photo->where('type', 'photo')
+                                            ->where(function ($status) use ($user) {
+                                                $status->where('status', 'approved')
+                                                    ->orWhere('uploaded_by', $user->id);
+                                            });
+                                    });
+                            });
+                        })
+                        ->latest();
+                },
+            ])
+            ->latest()
+            ->get();
+
+        return response()->json($lessons);
     }
 
     public function store(Request $request, SchoolClass $schoolClass)

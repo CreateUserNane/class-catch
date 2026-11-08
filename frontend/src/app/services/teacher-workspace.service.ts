@@ -29,6 +29,7 @@ export class TeacherWorkspaceService {
     return this.classService.getClasses().pipe(
       switchMap((classes) => {
         if (classes.length === 0) return of({ classes, lessons: [], joinRequests: [] });
+
         return forkJoin(classes.map((schoolClass) => forkJoin({
           lessons: this.classService.getLessons(schoolClass.id).pipe(
             map((lessons) => lessons.map((lesson) => ({ lesson, schoolClass }))),
@@ -44,15 +45,6 @@ export class TeacherWorkspaceService {
             lessons: groups.flatMap((group) => group.lessons),
             joinRequests: groups.flatMap((group) => group.requests),
           })),
-          switchMap((workspace) => {
-            if (workspace.lessons.length === 0) return of(workspace);
-            return forkJoin(workspace.lessons.map((entry) =>
-              this.classService.getLesson(entry.lesson.id).pipe(
-                map((lesson) => ({ ...entry, lesson })),
-                catchError(() => of(entry)),
-              ),
-            )).pipe(map((lessons) => ({ ...workspace, lessons })));
-          }),
         );
       }),
     );
