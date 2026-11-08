@@ -214,7 +214,17 @@
 
 .photo-actions {
   display: flex;
-  gap: 6px;
+  min-width: 0;
+  width: 100%;
+}
+
+.photo-actions .btn {
+  min-width: 0;
+  height: auto;
+  min-height: 32px;
+  padding: 6px 11px;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .photo-review-actions {

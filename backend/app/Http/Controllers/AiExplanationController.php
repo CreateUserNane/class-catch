@@ -67,18 +67,7 @@ class AiExplanationController extends Controller
 
     private function canGenerate($user, $schoolClass): bool
     {
-        if ($user->role === 'teacher' && $schoolClass->teacher_id === $user->id) {
-            return true;
-        }
-
-        if ($user->role === 'student' && $schoolClass->representative_id === $user->id) {
-            return ClassMembership::where('class_id', $schoolClass->id)
-                ->where('student_id', $user->id)
-                ->where('status', 'approved')
-                ->exists();
-        }
-
-        return false;
+        return $user->role === 'teacher' && $schoolClass->teacher_id === $user->id;
     }
 
     private function canView($user, $schoolClass): bool

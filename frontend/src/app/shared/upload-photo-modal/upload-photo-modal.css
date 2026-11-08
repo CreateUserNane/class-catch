@@ -1,3 +1,5 @@
+.upload-photo-overlay { z-index: 130; }
+
 .dropzone {
   display: flex;
   flex-direction: column;

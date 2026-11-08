@@ -192,20 +192,18 @@
                         }
                       </div>
 
-                      @if (file.status === 'approved') {
-                      <div class="photo-actions row">
-                        @if (explanationFor(file)) {
-                          <button type="button" class="btn btn-outline btn-sm btn-block" (click)="generateExplanation(file)">
-                            <span class="material-symbols-outlined">regenerate</span> Regenerate Explanation
-                          </button>
-                        } @else if (canGenerateExplanation()) {
-                          <button type="button" class="btn btn-dark btn-sm btn-block" [disabled]="generatingExplanationId() === file.id" (click)="generateExplanation(file)">
-                            @if (generatingExplanationId() === file.id) { <span class="spinner light"></span> Processing… } @else { <span class="material-symbols-outlined">auto_awesome</span> Explain with AI }
-                          </button>
-                        } @else {
-                          <span class="badge badge-gray">Explanation not available</span>
-                        }
-                      </div>
+                      @if (file.status === 'approved' && canGenerateExplanation()) {
+                        <div class="photo-actions">
+                          @if (explanationFor(file)) {
+                            <button type="button" class="btn btn-outline btn-sm btn-block" (click)="generateExplanation(file)">
+                              Regenerate explanation
+                            </button>
+                          } @else {
+                            <button type="button" class="btn btn-dark btn-sm btn-block" [disabled]="generatingExplanationId() === file.id" (click)="generateExplanation(file)">
+                              @if (generatingExplanationId() === file.id) { <span class="spinner light"></span> Processing… } @else { <span class="material-symbols-outlined">auto_awesome</span> Explain with AI }
+                            </button>
+                          }
+                        </div>
                       }
 
                       @if (explanationErrorId() === file.id) {
@@ -284,6 +282,7 @@
   }
 
   <app-upload-photo-modal
+    shellOverlay
     [open]="uploadModalOpen()"
     [lessons]="[{ id: lessonId() ?? -1, title: lessonTitle() }]"
     [defaultLessonId]="lessonId()"

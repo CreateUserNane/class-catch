@@ -88,6 +88,8 @@
   </main>
 </div>
 
+<ng-content select="[shellOverlay]" />
+
 <nav class="mobile-bottom-nav" [class.student-nav]="role() === 'student'" [class.teacher-nav]="role() === 'teacher'" aria-label="Main navigation">
   <a class="mobile-nav-item" [routerLink]="dashboardLink()" [class.active]="isDashboardActive()" [attr.aria-current]="isDashboardActive() ? 'page' : null">
     <span class="material-symbols-outlined">grid_view</span><span>Dashboard</span>

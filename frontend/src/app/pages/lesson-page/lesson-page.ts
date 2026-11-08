@@ -103,15 +103,7 @@ export class LessonPage implements OnInit {
     const lesson = this.lesson();
     const user = this.user();
 
-    if (!lesson || !user) {
-      return false;
-    }
-
-    const isTeacher = user.role === 'teacher' && Number(lesson.teacher_id) === Number(user.id);
-    const representativeId = lesson.school_class?.representative_id ?? lesson.school_class?.representative?.id;
-    const isRepresentative = user.role === 'student' && Number(representativeId) === Number(user.id);
-
-    return isTeacher || isRepresentative;
+    return !!lesson && !!user && user.role === 'teacher' && Number(lesson.teacher_id) === Number(user.id);
   });
 
   protected readonly lessonId = computed(() => this.lesson()?.id ?? null);
@@ -397,7 +389,7 @@ export class LessonPage implements OnInit {
           this.explanations.update((current) => ({ ...current, [file.id]: explanation }));
         },
         error: () => {
-          // No explanation yet — the teacher or representative can generate one.
+          // No explanation yet — the class teacher can generate one.
         },
       });
     });
