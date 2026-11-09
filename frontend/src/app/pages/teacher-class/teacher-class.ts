@@ -14,6 +14,8 @@ import { InitialsPipe } from '../../shared/pipes/initials';
 import { FileSizePipe } from '../../shared/pipes/file-size';
 import { ToastService } from '../../shared/toast/toast.service';
 import { classAccentToken } from '../../shared/class-accent';
+import { RealtimeService } from '../../services/realtime.service';
+import { Subscription } from 'rxjs';
 
 interface TeacherLessonView {
   lesson: Lesson;
@@ -36,6 +38,8 @@ export class TeacherClass implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
+  private readonly realtime = inject(RealtimeService);
+  private realtimeSubscription = new Subscription();
 
   protected readonly user = this.authService.user;
   protected readonly classAccent = classAccentToken;
@@ -113,11 +117,16 @@ export class TeacherClass implements OnInit {
       const id = Number(params.get('id'));
 
       if (id) {
+        this.realtimeSubscription.unsubscribe();
+        this.realtimeSubscription = this.realtime.watchClass(id).subscribe(() => this.loadClass(id));
         this.loadClass(id);
       }
     });
 
-    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+      this.realtimeSubscription.unsubscribe();
+    });
   }
 
   protected setActiveTab(tab: 'lessons' | 'students'): void {

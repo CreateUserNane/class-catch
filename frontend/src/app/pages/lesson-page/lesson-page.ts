@@ -13,6 +13,8 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { UploadPhotoModal } from '../../shared/upload-photo-modal/upload-photo-modal';
 import { classAccentToken } from '../../shared/class-accent';
 import { RecentLessonsService } from '../../services/recent-lessons.service';
+import { RealtimeService } from '../../services/realtime.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lesson-page',
@@ -29,6 +31,9 @@ export class LessonPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly recentLessons = inject(RecentLessonsService);
   private readonly route = inject(ActivatedRoute);
+  private readonly realtime = inject(RealtimeService);
+  private realtimeSubscription = new Subscription();
+  private watchedClassId: number | null = null;
 
   protected readonly user = this.authService.user;
   protected readonly classAccent = classAccentToken;
@@ -113,11 +118,16 @@ export class LessonPage implements OnInit {
       const id = Number(params.get('id'));
 
       if (id) {
+        this.realtimeSubscription.unsubscribe();
+        this.watchedClassId = null;
         this.loadLesson(id);
       }
     });
 
-    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+      this.realtimeSubscription.unsubscribe();
+    });
   }
 
   protected backToClass(): void {
@@ -365,6 +375,12 @@ export class LessonPage implements OnInit {
     this.classService.getLesson(lessonId).subscribe({
       next: (lesson) => {
         this.lesson.set(lesson);
+        if (this.watchedClassId !== lesson.class_id) {
+          this.realtimeSubscription.unsubscribe();
+          this.watchedClassId = lesson.class_id;
+          this.realtimeSubscription = this.realtime.watchClass(lesson.class_id)
+            .subscribe(() => this.loadLesson(lessonId));
+        }
         const user = this.user();
         if (user?.role === 'student') {
           this.recentLessons.record(lesson.id, user.id);

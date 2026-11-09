@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassUpdated;
 use App\Models\ClassMembership;
 use App\Models\Lesson;
 use App\Models\SchoolClass;
@@ -71,6 +72,8 @@ class LessonController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
+        ClassUpdated::dispatch($schoolClass->id, 'lesson.created');
+
         return response()->json($lesson, 201);
     }
 
@@ -128,6 +131,8 @@ class LessonController extends Controller
 
         $lesson->update($validated);
 
+        ClassUpdated::dispatch($schoolClass->id, 'lesson.updated');
+
         return response()->json($lesson->load([
             'teacher',
             'schoolClass.teacher',
@@ -149,6 +154,8 @@ class LessonController extends Controller
         }
 
         $lesson->delete();
+
+        ClassUpdated::dispatch($schoolClass->id, 'lesson.deleted');
 
         return response()->json([
             'message' => 'Lesson deleted successfully.',

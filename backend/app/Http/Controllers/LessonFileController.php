@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassUpdated;
 use App\Models\ClassMembership;
 use App\Models\Lesson;
 use App\Models\LessonFile;
@@ -51,6 +52,8 @@ class LessonFileController extends Controller
             'status' => 'approved',
         ]);
 
+        ClassUpdated::dispatch($schoolClass->id, 'file.uploaded');
+
         return response()->json($lessonFile, 201);
     }
 
@@ -95,6 +98,8 @@ class LessonFileController extends Controller
             'status' => $isTeacher ? 'approved' : 'pending',
         ]);
 
+        ClassUpdated::dispatch($schoolClass->id, 'photo.uploaded');
+
         return response()->json($lessonFile, 201);
     }
 
@@ -109,6 +114,8 @@ class LessonFileController extends Controller
 
         Storage::disk('public')->delete($lessonFile->path);
         $lessonFile->delete();
+
+        ClassUpdated::dispatch($schoolClass->id, 'file.deleted');
 
         return response()->json([
             'message' => 'File deleted successfully.',
@@ -133,6 +140,8 @@ class LessonFileController extends Controller
         ]);
 
         $lessonFile->update(['status' => $validated['status']]);
+
+        ClassUpdated::dispatch($schoolClass->id, 'photo.moderated');
 
         return response()->json($lessonFile->load('uploader'));
     }

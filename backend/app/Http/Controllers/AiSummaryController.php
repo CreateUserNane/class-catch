@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassUpdated;
 use App\Models\AiSummary;
 use App\Models\ClassMembership;
 use App\Models\Lesson;
@@ -32,6 +33,8 @@ class AiSummaryController extends Controller
                 'message' => $exception->getMessage(),
             ], 503);
         }
+
+        ClassUpdated::dispatch($schoolClass->id, 'summary.generated');
 
         return response()->json($summary, 201);
     }

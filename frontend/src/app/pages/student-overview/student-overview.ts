@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -10,6 +10,8 @@ import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { classAccentToken } from '../../shared/class-accent';
 import { RecentLessonsService } from '../../services/recent-lessons.service';
+import { RealtimeService } from '../../services/realtime.service';
+import { Subscription } from 'rxjs';
 
 interface RecentLesson {
   lesson: Lesson;
@@ -34,6 +36,9 @@ export class StudentDashboard implements OnInit {
   private readonly classService = inject(ClassService);
   private readonly recentLessonsService = inject(RecentLessonsService);
   private readonly router = inject(Router);
+  private readonly realtime = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private realtimeSubscriptions = new Subscription();
 
   protected readonly user = this.auth.user;
   protected readonly classAccent = classAccentToken;
@@ -53,12 +58,22 @@ export class StudentDashboard implements OnInit {
   protected readonly pendingCount = computed(() => this.classes().filter((item) => item.membership_status === 'pending').length);
 
   ngOnInit(): void {
+    this.destroyRef.onDestroy(() => this.realtimeSubscriptions.unsubscribe());
+    this.loadDashboard();
+  }
+
+  private loadDashboard(): void {
     const userId = this.user()?.id;
     if (userId) this.recentLessonsService.loadForUser(userId);
 
     this.classService.getJoinedClasses().subscribe({
       next: (classes) => {
         this.classes.set(classes);
+        this.realtimeSubscriptions.unsubscribe();
+        this.realtimeSubscriptions = new Subscription();
+        for (const schoolClass of classes) {
+          this.realtimeSubscriptions.add(this.realtime.watchClass(schoolClass.id).subscribe(() => this.loadDashboard()));
+        }
         const approved = classes.filter((item) => item.membership_status === 'approved');
         if (approved.length === 0) {
           this.loading.set(false);

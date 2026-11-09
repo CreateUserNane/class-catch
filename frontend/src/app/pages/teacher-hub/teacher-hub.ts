@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClassJoinRequest, SchoolClass } from '../../models/class';
 import { LessonFile } from '../../models/lesson-file';
@@ -8,6 +8,8 @@ import { ClassService } from '../../services/class.service';
 import { AppShell } from '../../shared/shell/shell';
 import { ToastService } from '../../shared/toast/toast.service';
 import { classAccentToken } from '../../shared/class-accent';
+import { RealtimeService } from '../../services/realtime.service';
+import { Subscription } from 'rxjs';
 
 type TeacherHubPage = 'lessons' | 'review';
 type LessonResourceFilter = 'all' | 'powerpoint' | 'pdf' | 'documents' | 'photos';
@@ -34,6 +36,9 @@ export class TeacherHub implements OnInit {
   private readonly workspaceService = inject(TeacherWorkspaceService);
   private readonly classService = inject(ClassService);
   private readonly toast = inject(ToastService);
+  private readonly realtime = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private realtimeSubscriptions = new Subscription();
 
   protected readonly page = signal<TeacherHubPage>('lessons');
   protected readonly loading = signal(true);
@@ -84,6 +89,7 @@ export class TeacherHub implements OnInit {
   );
 
   ngOnInit(): void {
+    this.destroyRef.onDestroy(() => this.realtimeSubscriptions.unsubscribe());
     this.route.data.subscribe((data) => {
       const page = data['teacherHubPage'];
       if (page === 'lessons' || page === 'review') this.page.set(page);
@@ -176,6 +182,11 @@ export class TeacherHub implements OnInit {
     this.error.set('');
     this.workspaceService.load().subscribe({
       next: (workspace) => {
+        this.realtimeSubscriptions.unsubscribe();
+        this.realtimeSubscriptions = new Subscription();
+        for (const schoolClass of workspace.classes) {
+          this.realtimeSubscriptions.add(this.realtime.watchClass(schoolClass.id).subscribe(() => this.load()));
+        }
         this.lessons.set(workspace.lessons);
         this.joinRequests.set(workspace.joinRequests);
         this.loading.set(false);

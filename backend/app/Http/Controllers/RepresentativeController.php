@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassUpdated;
 use App\Models\ClassMembership;
 use App\Models\SchoolClass;
 use App\Models\User;
@@ -36,6 +37,8 @@ class RepresentativeController extends Controller
         }
 
         $schoolClass->update(['representative_id' => $student->id]);
+
+        ClassUpdated::dispatch($schoolClass->id, 'representative.changed');
 
         return response()->json($schoolClass->load('teacher', 'representative'));
     }

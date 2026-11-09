@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -9,6 +9,8 @@ import { Lesson } from '../../models/lesson';
 import { SchoolClass } from '../../models/class';
 import { AppShell } from '../../shared/shell/shell';
 import { classAccentToken } from '../../shared/class-accent';
+import { RealtimeService } from '../../services/realtime.service';
+import { Subscription } from 'rxjs';
 
 interface RecentLesson {
   lesson: Lesson;
@@ -28,6 +30,9 @@ export class TeacherDashboard implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly classService = inject(ClassService);
   private readonly router = inject(Router);
+  private readonly realtime = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private realtimeSubscriptions = new Subscription();
 
   protected readonly user = this.auth.user;
   protected readonly classAccent = classAccentToken;
@@ -39,9 +44,19 @@ export class TeacherDashboard implements OnInit {
   protected readonly pendingCount = computed(() => this.classes().reduce((sum, item) => sum + (item.pending_requests_count ?? 0), 0));
 
   ngOnInit(): void {
+    this.destroyRef.onDestroy(() => this.realtimeSubscriptions.unsubscribe());
+    this.loadDashboard();
+  }
+
+  private loadDashboard(): void {
     this.classService.getClasses().subscribe({
       next: (classes) => {
         this.classes.set(classes);
+        this.realtimeSubscriptions.unsubscribe();
+        this.realtimeSubscriptions = new Subscription();
+        for (const schoolClass of classes) {
+          this.realtimeSubscriptions.add(this.realtime.watchClass(schoolClass.id).subscribe(() => this.loadDashboard()));
+        }
         if (classes.length === 0) {
           this.loading.set(false);
           return;

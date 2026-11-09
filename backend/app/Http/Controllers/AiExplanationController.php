@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassUpdated;
 use App\Models\AiSummary;
 use App\Models\ClassMembership;
 use App\Models\LessonFile;
@@ -34,6 +35,8 @@ class AiExplanationController extends Controller
                 'message' => $exception->getMessage(),
             ], 503);
         }
+
+        ClassUpdated::dispatch($schoolClass->id, 'explanation.generated');
 
         return response()->json($explanation, 201);
     }
