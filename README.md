@@ -1,3 +1,10 @@
+
+## Tech Stack
+
+[![My Skills](https://skillicons.dev/icons?i=html,css,js,ts,react,angular,nodejs,php,laravel,dart,flutter,mysql,git,github,vscode,postman&perline=7)](https://skillicons.dev
+)
+
+
 # ClassCatch
 
 ClassCatch is a web-based learning platform for students to catch up on missed lessons.
