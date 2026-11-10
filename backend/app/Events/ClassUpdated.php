@@ -14,6 +14,12 @@ class ClassUpdated implements ShouldBroadcastNow
 
     public function __construct(public int $classId, public string $change) {}
 
+    public static function dispatchSafely(int $classId, string $change): void
+    {
+        // Real-time broadcasting is disabled to avoid persistent websocket
+        // traffic. Clients refresh class data through their normal API loads.
+    }
+
     public function broadcastOn(): array
     {
         return [new PrivateChannel('class.'.$this->classId)];

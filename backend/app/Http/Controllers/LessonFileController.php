@@ -52,7 +52,7 @@ class LessonFileController extends Controller
             'status' => 'approved',
         ]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'file.uploaded');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'file.uploaded');
 
         return response()->json($lessonFile, 201);
     }
@@ -98,7 +98,7 @@ class LessonFileController extends Controller
             'status' => $isTeacher ? 'approved' : 'pending',
         ]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'photo.uploaded');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'photo.uploaded');
 
         return response()->json($lessonFile, 201);
     }
@@ -115,7 +115,7 @@ class LessonFileController extends Controller
         Storage::disk('public')->delete($lessonFile->path);
         $lessonFile->delete();
 
-        ClassUpdated::dispatch($schoolClass->id, 'file.deleted');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'file.deleted');
 
         return response()->json([
             'message' => 'File deleted successfully.',
@@ -141,7 +141,7 @@ class LessonFileController extends Controller
 
         $lessonFile->update(['status' => $validated['status']]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'photo.moderated');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'photo.moderated');
 
         return response()->json($lessonFile->load('uploader'));
     }

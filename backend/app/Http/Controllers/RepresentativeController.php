@@ -38,7 +38,7 @@ class RepresentativeController extends Controller
 
         $schoolClass->update(['representative_id' => $student->id]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'representative.changed');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'representative.changed');
 
         return response()->json($schoolClass->load('teacher', 'representative'));
     }

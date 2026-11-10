@@ -36,7 +36,7 @@ class AiExplanationController extends Controller
             ], 503);
         }
 
-        ClassUpdated::dispatch($schoolClass->id, 'explanation.generated');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'explanation.generated');
 
         return response()->json($explanation, 201);
     }

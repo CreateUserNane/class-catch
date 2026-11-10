@@ -72,7 +72,7 @@ class LessonController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'lesson.created');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'lesson.created');
 
         return response()->json($lesson, 201);
     }
@@ -131,7 +131,7 @@ class LessonController extends Controller
 
         $lesson->update($validated);
 
-        ClassUpdated::dispatch($schoolClass->id, 'lesson.updated');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'lesson.updated');
 
         return response()->json($lesson->load([
             'teacher',
@@ -155,7 +155,7 @@ class LessonController extends Controller
 
         $lesson->delete();
 
-        ClassUpdated::dispatch($schoolClass->id, 'lesson.deleted');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'lesson.deleted');
 
         return response()->json([
             'message' => 'Lesson deleted successfully.',

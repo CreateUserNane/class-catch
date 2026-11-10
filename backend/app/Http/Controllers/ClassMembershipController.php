@@ -44,7 +44,7 @@ class ClassMembershipController extends Controller
             if ($membership->status === 'rejected') {
                 $membership->update(['status' => 'pending']);
 
-                ClassUpdated::dispatch($schoolClass->id, 'join-request.created');
+                ClassUpdated::dispatchSafely($schoolClass->id, 'join-request.created');
 
                 return response()->json([
                     'message' => 'Your new request to join this class is pending teacher approval.',
@@ -64,7 +64,7 @@ class ClassMembershipController extends Controller
             'status' => 'pending',
         ]);
 
-        ClassUpdated::dispatch($schoolClass->id, 'join-request.created');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'join-request.created');
 
         return response()->json([
             'message' => 'Your request to join this class is pending approval.',
@@ -118,7 +118,7 @@ class ClassMembershipController extends Controller
 
         $joinRequest->update(['status' => 'approved']);
 
-        ClassUpdated::dispatch($schoolClass->id, 'membership.approved');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'membership.approved');
 
         return response()->json($joinRequest->load('student'));
     }
@@ -134,7 +134,7 @@ class ClassMembershipController extends Controller
 
         $joinRequest->update(['status' => 'rejected']);
 
-        ClassUpdated::dispatch($schoolClass->id, 'join-request.rejected');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'join-request.rejected');
 
         return response()->json($joinRequest->load('student'));
     }

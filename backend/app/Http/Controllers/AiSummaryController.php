@@ -34,7 +34,7 @@ class AiSummaryController extends Controller
             ], 503);
         }
 
-        ClassUpdated::dispatch($schoolClass->id, 'summary.generated');
+        ClassUpdated::dispatchSafely($schoolClass->id, 'summary.generated');
 
         return response()->json($summary, 201);
     }
