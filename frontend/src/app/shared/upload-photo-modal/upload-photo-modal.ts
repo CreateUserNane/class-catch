@@ -7,9 +7,11 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { HttpEventType } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { FileSizePipe } from '../pipes/file-size';
 import { ClassService } from '../../services/class.service';
 import { LessonFile } from '../../models/lesson-file';
@@ -42,6 +44,7 @@ export class UploadPhotoModal {
 
   protected readonly lessonId = signal<number | null>(null);
   protected readonly selectedFile = signal<File | null>(null);
+  protected readonly confirmationOpen = signal(false);
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly uploading = signal(false);
   protected readonly uploadProgress = signal(0);
@@ -52,8 +55,9 @@ export class UploadPhotoModal {
   constructor() {
     effect(() => {
       if (this.open()) {
-        this.reset();
-        this.lessonId.set(this.defaultLessonId() ?? null);
+        const defaultLessonId = this.defaultLessonId();
+        untracked(() => this.reset());
+        this.lessonId.set(defaultLessonId ?? null);
       }
     });
 
@@ -67,6 +71,7 @@ export class UploadPhotoModal {
 
   private reset(): void {
     this.selectedFile.set(null);
+    this.confirmationOpen.set(false);
     this.revokePreview();
     this.error.set('');
     this.uploading.set(false);
@@ -123,7 +128,7 @@ export class UploadPhotoModal {
 
     this.selectedFile.set(file);
     this.previewUrl.set(URL.createObjectURL(file));
-    this.upload();
+    this.confirmationOpen.set(true);
   }
 
   private async hasSupportedImageSignature(file: File): Promise<boolean> {
@@ -140,7 +145,26 @@ export class UploadPhotoModal {
 
   protected removeFile(): void {
     this.selectedFile.set(null);
+    this.confirmationOpen.set(false);
     this.revokePreview();
+  }
+
+  protected cancelConfirmation(): void {
+    this.confirmationOpen.set(false);
+  }
+
+  protected confirmUpload(): void {
+    this.confirmationOpen.set(false);
+    this.upload();
+  }
+
+  protected chooseOrReviewPhoto(fileInput: HTMLInputElement): void {
+    if (this.selectedFile()) {
+      this.confirmationOpen.set(true);
+      return;
+    }
+
+    fileInput.click();
   }
 
   protected upload(): void {
@@ -155,15 +179,18 @@ export class UploadPhotoModal {
     this.uploadProgress.set(0);
     this.error.set('');
 
-    this.classService.uploadPhotoWithProgress(lesson, file).subscribe({
+    this.classService.uploadPhotoWithProgress(lesson, file).pipe(
+      finalize(() => this.uploading.set(false)),
+    ).subscribe({
       next: (event) => {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.uploadProgress.set(Math.round((event.loaded / event.total) * 100));
         } else if (event.type === HttpEventType.Response && event.body) {
           this.uploadProgress.set(100);
-          this.uploading.set(false);
           this.revokePreview();
-          this.toast.show('Status: Pending teacher review. The photo will be published after approval.');
+          this.toast.show(event.body.status === 'pending'
+            ? 'Photo uploaded. It will be published after teacher approval.'
+            : 'Photo uploaded and published to the class.');
           this.uploaded.emit(event.body);
           this.dismissed.emit();
         }
