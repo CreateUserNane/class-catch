@@ -149,22 +149,9 @@ export class UploadPhotoModal {
     this.revokePreview();
   }
 
-  protected cancelConfirmation(): void {
-    this.confirmationOpen.set(false);
-  }
-
   protected confirmUpload(): void {
     this.confirmationOpen.set(false);
     this.upload();
-  }
-
-  protected chooseOrReviewPhoto(fileInput: HTMLInputElement): void {
-    if (this.selectedFile()) {
-      this.confirmationOpen.set(true);
-      return;
-    }
-
-    fileInput.click();
   }
 
   protected upload(): void {

@@ -36,26 +36,27 @@
           </div>
         }
 
-        <div class="field">
-          <label for="photo-file-picker">Choose classroom photo</label>
-          <input #fileInput id="photo-file-picker" type="file" class="photo-file-input" aria-label="Select classroom photo" [disabled]="uploading()" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" (change)="onFileInput($event)" />
-          <p class="tiny muted">JPG, PNG, WEBP or GIF, up to 5 MB.</p>
-        </div>
+        <input #fileInput id="photo-file-picker" type="file" class="sr-only" aria-label="Select classroom photo" [disabled]="uploading()" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" (change)="onFileInput($event)" />
 
-        <div
-          class="dropzone"
-          [class.uploading]="uploading()"
-          role="button"
-          tabindex="0"
-          (click)="fileInput.click()"
-          (keydown.enter)="fileInput.click()"
-          (drop)="onDrop($event)"
-          (dragover)="onDragOver($event)"
-        >
-          <span class="dropzone-icon material-symbols-outlined">cloud_upload</span>
-          <p class="dropzone-title"><span>Click to browse</span> or drag &amp; drop board photos</p>
-          <p class="tiny muted">The photo will be reviewed before it is uploaded.</p>
-        </div>
+        @if (!confirmationOpen()) {
+          <div
+            class="dropzone"
+            [class.uploading]="uploading()"
+            role="button"
+            tabindex="0"
+            aria-label="Browse for or drop a classroom photo"
+            (click)="fileInput.click()"
+            (keydown.enter)="fileInput.click()"
+            (keydown.space)="$event.preventDefault(); fileInput.click()"
+            (drop)="onDrop($event)"
+            (dragover)="onDragOver($event)"
+          >
+            <span class="dropzone-icon material-symbols-outlined">cloud_upload</span>
+            <p class="dropzone-title">Drop a classroom photo here</p>
+            <p class="tiny muted"><span class="dropzone-link">Browse files</span> or drag and drop</p>
+            <p class="tiny muted">JPG, PNG, WEBP or GIF · Up to 5 MB</p>
+          </div>
+        }
 
         @if (selectedFile(); as file) {
           <div class="file-row">
@@ -102,7 +103,7 @@
 
       <div class="modal-footer">
         @if (confirmationOpen()) {
-          <button type="button" class="btn btn-outline" [disabled]="uploading()" (click)="cancelConfirmation()">Go Back</button>
+          <button type="button" class="btn btn-outline" [disabled]="uploading()" (click)="close()">Cancel</button>
           <button type="button" class="btn btn-indigo" [disabled]="uploading() || !selectedFile() || !lessonId()" (click)="confirmUpload()">
             @if (uploading()) {
               <span class="spinner light"></span> Uploading {{ uploadProgress() }}%
@@ -112,15 +113,6 @@
           </button>
         } @else {
           <button type="button" class="btn btn-outline" [disabled]="uploading()" (click)="close()">Cancel</button>
-          <button type="button" class="btn btn-indigo" [disabled]="uploading() || !lessonId()" (click)="chooseOrReviewPhoto(fileInput)">
-            @if (uploading()) {
-              <span class="spinner light"></span> Uploading {{ uploadProgress() }}%
-            } @else if (selectedFile()) {
-              <span class="material-symbols-outlined">visibility</span> Review Upload
-            } @else {
-              <span class="material-symbols-outlined">upload</span> Choose a Photo
-            }
-          </button>
         }
       </div>
     </div>
