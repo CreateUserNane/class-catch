@@ -58,16 +58,26 @@
 
     <div class="topbar-right">
       @if (role() === 'teacher') {
-        <label class="class-switcher">
+        <div class="class-switcher" (click)="$event.stopPropagation()">
           <span class="material-symbols-outlined switcher-icon" aria-hidden="true">swap_horiz</span>
-          <select aria-label="Switch class" [value]="classSwitcherValue()" [disabled]="teacherClassesLoading() || teacherClasses().length === 0" (change)="switchClass($event)">
-            <option value="">{{ teacherClassesLoading() ? 'Loading classes…' : teacherClasses().length === 0 ? 'No classes yet' : 'Switch class' }}</option>
+          <button type="button" class="switcher-trigger" aria-label="Switch class" aria-controls="class-switcher-options" [attr.aria-expanded]="classSwitcherOpen()" [disabled]="teacherClassesLoading() || teacherClasses().length === 0" (click)="toggleClassSwitcher()">
+            <span class="switcher-label">{{ classSwitcherLabel() }}</span>
+            <span class="material-symbols-outlined switcher-arrow" [class.open]="classSwitcherOpen()" aria-hidden="true">expand_more</span>
+          </button>
+          @if (classSwitcherOpen()) {
+            <div id="class-switcher-options" class="switcher-menu" role="group" aria-label="Choose a class">
             @for (schoolClass of teacherClasses(); track schoolClass.id) {
-              <option [value]="schoolClass.id">{{ schoolClass.name }}</option>
+              <button type="button" class="switcher-option" [attr.aria-pressed]="activeClassId() === schoolClass.id" [class.selected]="activeClassId() === schoolClass.id" (click)="switchClass(schoolClass.id)">
+                <span class="material-symbols-outlined switcher-option-icon" aria-hidden="true">school</span>
+                <span class="switcher-option-name">{{ schoolClass.name }}</span>
+                @if (activeClassId() === schoolClass.id) {
+                  <span class="material-symbols-outlined switcher-check" aria-hidden="true">check</span>
+                }
+              </button>
             }
-          </select>
-          <span class="material-symbols-outlined switcher-arrow" aria-hidden="true">expand_more</span>
-        </label>
+            </div>
+          }
+        </div>
       }
       <span class="workspace-pill">
         <span class="dot"></span>

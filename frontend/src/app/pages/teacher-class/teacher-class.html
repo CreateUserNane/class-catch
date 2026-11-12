@@ -6,21 +6,21 @@
   </div>
 
   @if (loading()) {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <div class="card empty">
         <span class="spinner"></span>
         <span>Loading class…</span>
       </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <div class="alert alert-error">
         <span class="material-symbols-outlined">error</span>
         <span>{{ errorMessage() }}</span>
       </div>
     </div>
   } @else {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <a routerLink="/dashboard/teacher/classes" class="back-link">Back to All Classes</a>
 
       <section class="card card-pad class-hero">
@@ -126,10 +126,12 @@
                   @if (view.materials.length > 0) {
                     <div class="row wrap file-row-strip">
                       @for (file of view.materials; track file.id) {
-                        <span class="file-chip">
+                        <span class="file-chip material-file-chip" [title]="file.original_name">
                           <span class="material-symbols-outlined">{{ materialIcon(file.original_name) }}</span>
-                          {{ file.original_name }}
-                          <button type="button" class="link-btn" (click)="openFileUrl(file.url)">View</button>
+                          <span class="material-file-name">{{ file.original_name }}</span>
+                          <button type="button" class="btn btn-icon material-download-btn" (click)="openFileUrl(file.url)" [attr.aria-label]="'Download or open ' + file.original_name" title="Download or open file">
+                            <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                          </button>
                         </span>
                       }
                     </div>

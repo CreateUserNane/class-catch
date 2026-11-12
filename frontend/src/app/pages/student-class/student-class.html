@@ -6,21 +6,21 @@
   </div>
 
   @if (loading()) {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <div class="card empty">
         <span class="spinner"></span>
         <span>Loading class…</span>
       </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <div class="alert alert-error">
         <span class="material-symbols-outlined">error</span>
         <span>{{ errorMessage() }}</span>
       </div>
     </div>
   } @else {
-    <div class="page page-narrow">
+    <div class="page page-narrow paper-grain">
       <a routerLink="/dashboard/student/classes" class="back-link">&larr; Back to All Classes</a>
 
       <section class="card card-pad class-hero">

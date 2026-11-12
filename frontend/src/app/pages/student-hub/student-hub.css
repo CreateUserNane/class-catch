@@ -54,7 +54,6 @@
 .hub-lesson-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .hub-lesson-actions .btn { display: inline-flex; align-items: center; gap: 5px; }
 .hub-lesson-actions .btn .material-symbols-outlined { font-size: 18px; }
-.hub-lesson-actions .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; }
 @media (max-width: 650px) {
   .hub-heading { align-items: flex-start; flex-direction: column; }
   .hub-row { align-items: flex-start; flex-wrap: wrap; }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, computed, inject, input, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InitialsPipe } from '../pipes/initials';
@@ -26,9 +26,15 @@ export class AppShell implements OnInit {
   protected readonly logoutConfirmOpen = signal(false);
   protected readonly teacherClasses = signal<SchoolClass[]>([]);
   protected readonly teacherClassesLoading = signal(false);
+  protected readonly classSwitcherOpen = signal(false);
   protected readonly classSwitcherValue = computed(() => {
     const id = this.activeClassId();
     return id && this.teacherClasses().some((schoolClass) => schoolClass.id === id) ? String(id) : '';
+  });
+  protected readonly classSwitcherLabel = computed(() => {
+    if (this.teacherClassesLoading()) return 'Loading classes…';
+    const activeClass = this.teacherClasses().find((schoolClass) => String(schoolClass.id) === this.classSwitcherValue());
+    return activeClass?.name ?? (this.teacherClasses().length ? 'Switch class' : 'No classes yet');
   });
 
   ngOnInit(): void {
@@ -97,9 +103,25 @@ export class AppShell implements OnInit {
     void this.router.navigateByUrl(this.classesLink());
   }
 
-  protected switchClass(event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
+  protected toggleClassSwitcher(): void {
+    if (!this.teacherClassesLoading() && this.teacherClasses().length) {
+      this.classSwitcherOpen.update((open) => !open);
+    }
+  }
+
+  protected switchClass(id: number): void {
+    this.classSwitcherOpen.set(false);
     if (id > 0) void this.router.navigate(['/classes', id]);
+  }
+
+  @HostListener('document:click')
+  protected closeClassSwitcher(): void {
+    this.classSwitcherOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closeClassSwitcherOnEscape(): void {
+    this.classSwitcherOpen.set(false);
   }
 
   protected requestLogout(): void {
