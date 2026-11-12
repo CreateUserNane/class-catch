@@ -49,7 +49,7 @@ Completed:
 
 Requirements:
 
-- PHP 8.2+
+- PHP 8.3+ CLI (run `php -v` to confirm the CLI version; XAMPP's PHP may be older)
 - Composer
 - MySQL/MariaDB
 
@@ -73,7 +73,9 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Create the database, then run:
+Start MySQL from the XAMPP Control Panel and create the `classcatch` database before migrating. Ensure PHP 8.3+ is ahead of XAMPP's PHP in your command-line `PATH`, then reopen the terminal.
+
+Run:
 
 ```bash
 php artisan migrate
@@ -280,6 +282,59 @@ Completed final testing:
 - Frontend production build verified.
 - Backend migrations and route list verified.
 
+## Implemented Features
+
+### Teacher workspace
+
+- Create and manage classes with unique join codes.
+- Switch between classes from the shared workspace header.
+- Review student requests to join classes and approve or reject them.
+- View class rosters and assign a Student Representative.
+- Create, edit, and delete lessons and their uploaded materials.
+- Upload PowerPoint files from a lesson page after reviewing a confirmation prompt showing the selected filename and size.
+- Review classroom photos uploaded by the assigned Student Representative, then approve or reject them.
+- Pending photos stay private during review; approved photos are published to the class.
+- Browse lessons across classes with search, class/content filters, and date sorting.
+
+### Student workspace
+
+- Join a class using its code and view the request status while awaiting teacher approval.
+- Browse approved classes, lessons, materials, and approved classroom photos.
+- Search and filter lessons by class or content type, and sort them by date.
+- Save lessons for later. Saved lesson IDs are stored in browser local storage per signed-in user and are not synced between devices.
+- Open lesson materials and view available AI summaries and classroom photo explanations.
+
+### Shared interface and notifications
+
+- Separate teacher and student routes are protected by role-aware authentication guards.
+- Class and lesson pages include responsive layouts for mobile screens, shared dashboard styling, and a custom class-switching menu.
+- Lesson material names are constrained to their cards on narrow screens; material actions open the file in a new tab.
+- Upload and logout flows use confirmation dialogs. Modal content can scroll independently while keeping its actions visible.
+- Application errors appear as popup alerts; action results use dismissible toast notifications.
+
+### AI and file processing
+
+- PDF and PPTX text extraction supports AI-generated lesson summaries.
+- Classroom photos can be processed for AI-generated explanations using the OCR abstraction and configured Tesseract extractor.
+- AI generation requires a valid provider configuration. Missing credentials return a service-unavailable response rather than fabricated results.
+
+## Additional API Endpoints
+
+These authenticated routes are implemented in addition to the endpoints listed in the development steps above:
+
+| Method | Endpoint | Purpose / access |
+| --- | --- | --- |
+| `GET` | `/api/classes/{schoolClass}` | View class details when authorized as the teacher or an eligible class member. |
+| `GET` | `/api/classes/{schoolClass}/join-requests` | Teacher views requests for their class. |
+| `POST` | `/api/classes/{schoolClass}/join-requests/{membership}/approve` | Teacher approves a student request. |
+| `POST` | `/api/classes/{schoolClass}/join-requests/{membership}/reject` | Teacher rejects a student request. |
+| `PUT` | `/api/lessons/{lesson}` | Teacher updates a lesson they own. |
+| `DELETE` | `/api/lessons/{lesson}` | Teacher deletes a lesson they own. |
+| `DELETE` | `/api/lesson-files/{lessonFile}` | Teacher deletes a lesson file in a class they own. |
+| `PATCH` | `/api/lesson-files/{lessonFile}/moderation` | Teacher moderates a classroom photo. |
+
+All routes in this table are under the `/api` prefix and require Sanctum authentication. The controllers enforce role, class membership, and ownership rules for each operation.
+
 ## Setup Notes
 
 - Backend: `cd backend && php artisan serve`
@@ -287,6 +342,7 @@ Completed final testing:
 - Database: MySQL database `classcatch`
 - AI features require `AI_API_KEY` and optional `TESSERACT_BINARY` for OCR.
 - Without AI credentials, AI endpoints return a service-unavailable response instead of fake data.
+- Real-time websocket updates are currently disabled; pages refresh through their normal API loading actions.
 
 ## Project Status
 
