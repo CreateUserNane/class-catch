@@ -139,6 +139,7 @@
 .shell-main {
   padding-left: 260px;
   min-height: 100vh;
+  min-width: 0;
 }
 
 .topbar {
@@ -265,6 +266,7 @@
 .shell-content {
   padding-top: 64px;
   min-height: 100vh;
+  min-width: 0;
   animation: page-enter 0.18s ease both;
 }
 

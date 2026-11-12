@@ -4,24 +4,22 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class ToastService {
-  private readonly messageSignal = signal<string | null>(null);
+  private readonly notificationSignal = signal<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   private timer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly message = this.messageSignal.asReadonly();
+  readonly notification = this.notificationSignal.asReadonly();
 
-  show(message: string): void {
+  show(message: string, type: 'success' | 'error' | 'info' = 'success'): void {
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
-    this.messageSignal.set(message);
-
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-
-    this.timer = setTimeout(() => this.messageSignal.set(null), 3200);
+    this.notificationSignal.set({ message, type });
+    this.timer = setTimeout(() => this.notificationSignal.set(null), type === 'error' ? 5000 : 3200);
   }
+
+  error(message: string): void { this.show(message, 'error'); }
+  info(message: string): void { this.show(message, 'info'); }
 
   dismiss(): void {
     if (this.timer) {
@@ -29,6 +27,6 @@ export class ToastService {
       this.timer = null;
     }
 
-    this.messageSignal.set(null);
+    this.notificationSignal.set(null);
   }
 }

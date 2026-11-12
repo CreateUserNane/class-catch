@@ -47,6 +47,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .lesson-title {
@@ -85,14 +87,23 @@
 
 .lesson-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
+  width: 100%;
+  min-width: 0;
+}
+
+.lesson-grid > .stack-lg,
+.lesson-grid > .stack-lg > .card {
+  width: 100%;
+  min-width: 0;
 }
 
 .materials-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .material-upload-button {
@@ -119,14 +130,43 @@
   z-index: 130;
 }
 
+.powerpoint-confirm-overlay .alert-info > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .file-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 10px 14px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
+}
+
+.file-row .grow {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.file-row .grow > .truncate {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.file-row .grow > .tiny {
+  overflow-wrap: anywhere;
+}
+
+.file-row > .btn {
+  flex: 0 0 auto;
 }
 
 .file-icon {
@@ -183,6 +223,25 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+}
+
+.photo-card-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 18px;
+}
+
+.photo-card-name {
+  min-width: 0;
+}
+
+.photo-card-date {
+  white-space: nowrap;
+  text-align: right;
 }
 
 .photo-card-body > *:first-child {
@@ -220,6 +279,7 @@
   display: flex;
   min-width: 0;
   width: 100%;
+  margin-top: auto;
 }
 
 .photo-actions .btn {
