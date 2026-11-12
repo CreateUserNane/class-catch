@@ -72,6 +72,32 @@
         </div>
       </section>
 
+      @if (materialUploadConfirmationOpen()) {
+        @if (pendingPowerPoint(); as pending) {
+          <div class="modal-overlay powerpoint-confirm-overlay" (click)="cancelPowerPointUpload()">
+            <section class="modal" role="dialog" aria-modal="true" aria-labelledby="powerpoint-upload-confirm-title" aria-describedby="powerpoint-upload-confirm-message" (click)="$event.stopPropagation()">
+              <header class="modal-header">
+                <h2 class="modal-title" id="powerpoint-upload-confirm-title">Confirm PowerPoint upload</h2>
+                <button type="button" class="modal-close" (click)="cancelPowerPointUpload()" aria-label="Cancel PowerPoint upload">×</button>
+              </header>
+              <div class="modal-body">
+                <div class="alert alert-info" id="powerpoint-upload-confirm-message" role="alert">
+                  <span class="material-symbols-outlined">help</span>
+                  <span>Are you sure you want to upload <strong>{{ pending.file.name }}</strong> to <strong>{{ lessonTitle() }}</strong>?</span>
+                </div>
+                <span class="tiny muted">File size: {{ pending.file.size | fileSize }}</span>
+              </div>
+              <footer class="modal-footer">
+                <button type="button" class="btn btn-outline" (click)="cancelPowerPointUpload()">Cancel</button>
+                <button type="button" class="btn btn-indigo" [disabled]="uploadingMaterial()" (click)="confirmPowerPointUpload()">
+                  <span class="material-symbols-outlined">upload</span> Yes, Upload PowerPoint
+                </button>
+              </footer>
+            </section>
+          </div>
+        }
+      }
+
       <div class="lesson-grid">
         <div class="stack-lg">
           <!-- Materials -->

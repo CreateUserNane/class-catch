@@ -115,6 +115,10 @@
   pointer-events: none;
 }
 
+.powerpoint-confirm-overlay {
+  z-index: 130;
+}
+
 .file-row {
   display: flex;
   align-items: center;

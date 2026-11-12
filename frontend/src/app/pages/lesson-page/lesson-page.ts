@@ -56,6 +56,8 @@ export class LessonPage implements OnInit {
   protected readonly uploadModalOpen = signal(false);
   protected readonly uploadingMaterial = signal(false);
   protected readonly materialUploadProgress = signal(0);
+  protected readonly materialUploadConfirmationOpen = signal(false);
+  protected readonly pendingPowerPoint = signal<{ file: File; lessonId: number } | null>(null);
   protected readonly newlyApprovedPhotoId = signal<number | null>(null);
   protected readonly materialUploadError = signal('');
 
@@ -324,6 +326,8 @@ export class LessonPage implements OnInit {
     }
 
     if (!/\.pptx?$/i.test(file.name)) {
+      this.pendingPowerPoint.set(null);
+      this.materialUploadConfirmationOpen.set(false);
       this.materialUploadError.set('Choose a PowerPoint file (.ppt or .pptx).');
       return;
     }
@@ -333,10 +337,31 @@ export class LessonPage implements OnInit {
       return;
     }
 
+    this.materialUploadError.set('');
+    this.pendingPowerPoint.set({ file, lessonId });
+    this.materialUploadConfirmationOpen.set(true);
+  }
+
+  protected cancelPowerPointUpload(): void {
+    this.materialUploadConfirmationOpen.set(false);
+    this.pendingPowerPoint.set(null);
+  }
+
+  protected confirmPowerPointUpload(): void {
+    const pending = this.pendingPowerPoint();
+    const lessonId = this.lessonId();
+
+    if (!pending || pending.lessonId !== lessonId || !lessonId || this.uploadingMaterial()) {
+      this.cancelPowerPointUpload();
+      return;
+    }
+
+    this.materialUploadConfirmationOpen.set(false);
+    this.pendingPowerPoint.set(null);
     this.uploadingMaterial.set(true);
     this.materialUploadProgress.set(0);
     this.materialUploadError.set('');
-    this.classService.uploadMaterialWithProgress(lessonId, file).subscribe({
+    this.classService.uploadMaterialWithProgress(lessonId, pending.file).subscribe({
       next: (event) => {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.materialUploadProgress.set(Math.round((event.loaded / event.total) * 100));
@@ -369,6 +394,11 @@ export class LessonPage implements OnInit {
   }
 
   private loadLesson(lessonId: number): void {
+    const pendingPowerPoint = this.pendingPowerPoint();
+    if (pendingPowerPoint && pendingPowerPoint.lessonId !== lessonId) {
+      this.cancelPowerPointUpload();
+    }
+
     this.loading.set(true);
     this.errorMessage.set('');
 
