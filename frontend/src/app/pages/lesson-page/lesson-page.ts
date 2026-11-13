@@ -51,6 +51,7 @@ export class LessonPage implements OnInit {
   protected readonly moderatingPhotoId = signal<number | null>(null);
   protected readonly photoModerationErrorId = signal<number | null>(null);
   protected readonly deletingPhotoId = signal<number | null>(null);
+  protected readonly photoPendingDelete = signal<LessonFile | null>(null);
   protected readonly photoDeleteErrorId = signal<number | null>(null);
 
   protected readonly uploadModalOpen = signal(false);
@@ -273,15 +274,28 @@ export class LessonPage implements OnInit {
       return;
     }
 
-    if (!window.confirm(`Delete "${file.original_name}" from this lesson?`)) {
+    this.photoDeleteErrorId.set(null);
+    this.photoPendingDelete.set(file);
+  }
+
+  protected cancelDeletePhoto(): void {
+    if (this.deletingPhotoId() === null) {
+      this.photoPendingDelete.set(null);
+    }
+  }
+
+  protected confirmDeletePhoto(): void {
+    const file = this.photoPendingDelete();
+
+    if (!file || !this.canModeratePhotos() || this.deletingPhotoId() !== null) {
       return;
     }
 
     this.deletingPhotoId.set(file.id);
-    this.photoDeleteErrorId.set(null);
     this.classService.deleteFile(file.id).subscribe({
       next: () => {
         this.deletingPhotoId.set(null);
+        this.photoPendingDelete.set(null);
         this.lesson.update((current) => current
           ? { ...current, files: (current.files ?? []).filter((item) => item.id !== file.id) }
           : current);
@@ -294,6 +308,7 @@ export class LessonPage implements OnInit {
       },
       error: (error) => {
         this.deletingPhotoId.set(null);
+        this.photoPendingDelete.set(null);
         this.photoDeleteErrorId.set(file.id);
         this.toast.show(error?.error?.message || 'Could not delete this photo.');
       },

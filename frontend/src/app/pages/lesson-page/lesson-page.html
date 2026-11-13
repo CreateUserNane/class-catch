@@ -309,6 +309,32 @@
     }
   </div>
 
+  @if (photoPendingDelete(); as photo) {
+    <div shellOverlay class="modal-overlay" (click)="cancelDeletePhoto()">
+      <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-photo-title" aria-describedby="delete-photo-message" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="row">
+            <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+            <div>
+              <h2 class="modal-title" id="delete-photo-title">Delete classroom photo?</h2>
+              <p class="tiny muted">This photo will be removed from the lesson.</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close" [disabled]="deletingPhotoId() !== null" (click)="cancelDeletePhoto()" aria-label="Cancel photo deletion">×</button>
+        </header>
+        <div class="modal-body">
+          <p id="delete-photo-message">Delete <strong>{{ photo.original_name }}</strong> from this lesson?</p>
+        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-outline" [disabled]="deletingPhotoId() !== null" (click)="cancelDeletePhoto()">Cancel</button>
+          <button type="button" class="btn btn-danger" [disabled]="deletingPhotoId() !== null" (click)="confirmDeletePhoto()">
+            @if (deletingPhotoId() === photo.id) { <span class="spinner light"></span> Removing… } @else { <span class="material-symbols-outlined">delete</span> Delete Photo }
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+
   <app-upload-photo-modal
     shellOverlay
     [open]="uploadModalOpen()"
